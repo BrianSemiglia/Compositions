@@ -11,34 +11,50 @@ import RxSwift
 import RxCocoa
 
 func + (left: UIView, right: CGSize) -> UIView {
-    left.bounds = CGRect(origin: .zero, size: right)
+    left.widthAnchor.constraint(equalToConstant: right.width)
+    left.heightAnchor.constraint(equalToConstant: right.height)
     return left
 }
 
-func + (left: CGSize, right: UIColor) -> UIView {
-    return right + left
-}
-
-func + (left: UIColor, right: CGSize) -> UIView {
-    let x = UIView()
-    x.bounds = CGRect(origin: .zero, size: right)
-    x.backgroundColor = left
-    return x
-}
-
-func + (left: [UIView], right: CGSize) -> UIView {
-    if (left.reduce(0) { $0 + $1.bounds.size.height }) > right.height {
-        return Table(model: left) + right
-    } else {
-        return (UIStackView() + left) + right
+func + <T>(left: CGSize, right: UIColor) -> (Observable<T>) -> Node<UIView, T> {
+    return { handler in
+        return right + left + handler
     }
 }
 
+func + <T>(left: UIColor, right: CGSize) -> (Observable<T>) -> Node<UIView, T> {
+    return { handler in
+        let x = UIView()
+        x.bounds = CGRect(origin: .zero, size: right)
+        x.backgroundColor = left
+        return Node(
+            value: x,
+            callback: x
+                .rx
+                .tapGesture()
+                .when(.recognized)
+                .flatMap { _ in handler }
+        )
+    }
+}
+
+func + <T>(left: (Observable<T>) -> Node<UIView, T>, right: Observable<T>) -> Node<UIView, T> {
+    return left(right)
+}
+
+//func + (left: [UIView], right: CGSize) -> UIView {
+////    if (left.reduce(0) { $0 + $1.bounds.size.height }) > right.height {
+//        return Table(model: left) + right
+////    } else {
+////        return (UIStackView() + left) + right
+////    }
+//}
+
 func + (left: [UIView], right: CGSize) -> UIViewController {
     let x = UIViewController()
-    let y: UIView = left + right
-    x.view.addSubview(y)
-    y.frame = x.view.bounds
+//    let y: UIView = left + right
+//    x.view.addSubview(y)
+//    y.frame = x.view.bounds
     return x
 }
 

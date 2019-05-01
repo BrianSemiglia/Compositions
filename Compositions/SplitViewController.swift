@@ -12,6 +12,28 @@ enum SplitView {
     case some
 }
 
+private func testSplitView() {
+    let a: [UILabel] = ["hello", "goodbye", "hello"].map { x in
+        x
+            + UIColor.Text.foreground(.red)
+            + UIScreen.main.bounds.size
+    }
+    let b = a.enumerated()
+        .map { $0.element + .screenTitle(String($0.offset)) }
+        / ScreenDivision.some
+    
+    let c: [UILabel] = ["hello", "goodbye", "hello"].map { x in
+        x
+            + UIColor.Text.foreground(.red)
+            + UIScreen.main.bounds.size
+    }
+    let d = c.enumerated()
+        .map { $0.element + .screenTitle(String($0.offset)) }
+        / ScreenDivision.some
+    
+    _ = b + d + SplitView.some
+}
+
 func + (left: UIViewController, right: UIViewController) -> (SplitView) -> UISplitViewController {
     return { _ in
         let x = UISplitViewController()

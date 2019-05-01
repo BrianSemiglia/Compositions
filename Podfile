@@ -9,6 +9,8 @@ target 'Compositions' do
   pod 'RxSwift'
   pod 'RxCocoa'
   pod 'RxGesture'
+  pod 'RxCallbacks'
+  pod 'RxAlamofire'
 
   target 'CompositionsTests' do
     inherit! :search_paths

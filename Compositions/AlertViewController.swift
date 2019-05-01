@@ -57,16 +57,19 @@ func + <T>(left: Node<UIAlertController, T>, right: [Node<UIAlertAction, T>]) ->
 func +<T>(left: String, right: UIAlertAction.Style) -> (Observable<T>) -> Node<UIAlertAction, T> {
     return { observable in
         let publish = PublishSubject<Void>()
+        // let x = observable.share()
+        // Observable.just(()).flatMap { observable }.share()
         return Node(
             value: UIAlertAction(
                 title: left,
                 style: right,
                 handler: { _ in
+//                    let n = Observable.just(()).flatMap { x }
                     publish.on(.next(()))
                     publish.on(.completed)
                 }
             ),
-            callback: publish.flatMap { _ in observable }
+            callback: publish.flatMap { _ in observable } //
         )
     }
 }

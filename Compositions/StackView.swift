@@ -24,45 +24,56 @@ extension CGFloat {
     }
 }
 
-func + (left: CGFloat.Axis, right: UIView) -> UIStackView {
+func + <T>(left: CGFloat.Axis, right: AsyncNode<UIView, T>) -> AsyncNode<UIStackView, T> {
     let x = UIStackView()
     switch left {
     case .vertical: x.axis = .vertical
     case .horizontal: x.axis = .horizontal
     }
-    switch left {
-    case let .horizontal(length):
-        x.bounds = CGRect(
-            origin: .zero,
-            size: CGSize(
-                width: right.frame.size.width + length,
-                height: right.frame.size.height
-            )
-        )
-    case let .vertical(length):
-        x.bounds = CGRect(
-            origin: .zero,
-            size: CGSize(
-                width: right.frame.size.width,
-                height: right.frame.size.height + length
-            )
-        )
-    }
-    switch left {
-    case let .horizontal(length):
-        x.addArrangedSubview(
-            UIView() + CGSize(width: length, height: 0)
-        )
-    case let .vertical(length):
-        x.addArrangedSubview(
-            UIView() + CGSize(width: 0, height: length)
-        )
-    }
-    x.addArrangedSubview(right)
-    return x
+    return AsyncNode(
+        initial: x,
+        values: right.values.map { view, callback in
+            switch left {
+            case let .horizontal(length):
+                x.bounds = CGRect(
+                    origin: .zero,
+                    size: CGSize(
+                        width: view.frame.size.width + length,
+                        height: view.frame.size.height
+                    )
+                )
+            case let .vertical(length):
+                x.bounds = CGRect(
+                    origin: .zero,
+                    size: CGSize(
+                        width: view.frame.size.width,
+                        height: view.frame.size.height + length
+                    )
+                )
+            }
+            switch left {
+            case let .horizontal(length):
+                x.addArrangedSubview(
+                    UIView() + CGSize(width: length, height: 0)
+                )
+            case let .vertical(length):
+                x.addArrangedSubview(
+                    UIView() + CGSize(width: 0, height: length)
+                )
+            }
+            x.addArrangedSubview(view)
+            return (x, callback)
+        },
+        callbacks: .never()
+    )
 }
 
 func + (left: UIStackView, right: UIView) -> UIStackView {
+    left.addArrangedSubview(right)
+    return left
+}
+
+func + (left: UIStackView, right: UILabel) -> UIStackView {
     left.addArrangedSubview(right)
     return left
 }
@@ -78,12 +89,26 @@ func + (left: UIStackView, right: [UIView]) -> UIStackView {
     return left
 }
 
-func + <T>(left: Node<UIView, T>, right: CGFloat.Axis) -> Node<UIStackView, T> {
-    return Node(
-        value: left.value + right,
-        callback: left.callback
-    )
-}
+//func + <T>(left: Node<UIView, T>, right: CGFloat.Axis) -> Node<UIStackView, T> {
+//    return Node(
+//        value: left.value + right,
+//        callback: left.callback
+//    )
+//}
+//
+//func + <T>(left: CGFloat.Axis, right: Node<UITextField, T>) -> Node<UIStackView, T> {
+//    return Node(
+//        value: left + right.value,
+//        callback: right.callback
+//    )
+//}
+//
+//func + <T>(left: Node<UITextField, T>, right: CGFloat.Axis) -> Node<UIStackView, T> {
+//    return Node(
+//        value: left.value + right,
+//        callback: left.callback
+//    )
+//}
 
 func + (left: UIView, right: CGFloat.Axis) -> UIStackView {
     let x = UIStackView()
@@ -135,6 +160,20 @@ func + <T>(left: UIStackView, right: Node<UIView, T>) -> Node<UIStackView, T> {
     )
 }
 
+func + <T>(left: Node<UIStackView, T>, right: UIImageView) -> Node<UIView, T> {
+    return Node(
+        value: left.value + right,
+        callback: left.callback
+    )
+}
+
+func + <T>(left: Node<UIStackView, T>, right: UILabel) -> Node<UIStackView, T> {
+    return Node(
+        value: left.value + right,
+        callback: left.callback
+    )
+}
+
 func + <T>(left: Node<UIStackView, T>, right: Node<UIView, T>) -> Node<UIStackView, T> {
     return Node(
         value: left.value + right.value,
@@ -152,6 +191,10 @@ func + <T>(left: Node<UIStackView, T>, right: Observable<T>) -> Node<UIStackView
 func + (left: UIStackView, right: Observable<Void>) -> Node<UIStackView, Void> {
     return Node(
         value: left,
-        callback: left.rx.tapGesture().when(.recognized).flatMap { _ in right }
+        callback: left
+            .rx
+            .tapGesture()
+            .when(.recognized)
+            .flatMap { _ in right }
     )
 }

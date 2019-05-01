@@ -7,6 +7,8 @@
 //
 
 import XCTest
+import RxSwift
+
 @testable import Compositions
 
 class CompositionsTests: XCTestCase {
@@ -20,8 +22,15 @@ class CompositionsTests: XCTestCase {
     }
 
     func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        let x = Observable.just(0).share()
+        let y = Observable.just(1).share()
+        let z = x === y
+        Observable.merge(
+            Observable.amb([y, y, x]),
+            y
+        ).subscribe(onNext: {
+            print($0)
+        })
     }
 
     func testPerformanceExample() {

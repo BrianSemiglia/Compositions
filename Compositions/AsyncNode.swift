@@ -10,6 +10,12 @@ import Foundation
 import RxSwift
 
 struct AsyncNode<A, B> {
+    
+    /*
+     As nodes become relevant, they subscribe. Subscribing causes entire tree to re-execute?
+     Probably not: node of nodes is lazy and isolated?
+     */
+    
     private var cache: A?
     let initial: A
     let values: Observable<(A, Observable<B>)>
@@ -69,7 +75,10 @@ extension Collection {
                 callbacks: .never()
             )
         ) { a, b in
-            return a.zip(b: b, f: f)
+            return a.zip(
+                b: b,
+                f: f
+            )
         }
     }
 }
