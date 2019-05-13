@@ -88,25 +88,6 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
 
     init(cells: [AsyncNode<Hashed, T>], frame: CGRect = .zero) {
         self.cells = cells
-        self.cells = Array(
-            repeating: AsyncNode(
-                initial: Hashed(
-                    id: "",
-                    view: UIView().with(
-                        frame: .init(
-                            origin: .zero,
-                            size: CGSize(
-                                width: UIScreen.main.bounds.size.width,
-                                height: 300
-                            )
-                        )
-                    )
-                ),
-                values: Observable<(Hashed, Observable<T>)>.never(),
-                callbacks: .never()
-            ),
-            count: 4
-        )
         super.init(
             frame: frame,
             style: .plain
@@ -177,11 +158,4 @@ func + (left: UITableViewCell, right: UIView) -> UITableViewCell {
     right.leadingAnchor.constraint(equalTo: left.contentView.leadingAnchor, constant: 0).isActive = true
     right.trailingAnchor.constraint(equalTo: left.contentView.trailingAnchor, constant: 0).isActive = true
     return left
-}
-
-private extension UIView {
-    func with(frame: CGRect) -> Self {
-        self.frame = frame
-        return self
-    }
 }
