@@ -25,29 +25,25 @@ extension Table {
             }
             .observeOn(MainScheduler.instance)
             .map { people in
-                people.map { person -> AsyncNode<UIView, Events.Model> in
-                    let x = (person.mugshot / UIImage.self)//.share(replay: 1, scope: .forever)
-                    let y = CGSize(width: UIScreen.main.bounds.width, height: 300)
-                    let z = Observable.just(Events.Model.didSelectPerson(person))
-                    let n = (x + y + z)
-                    return n
-//                        .map {
-//                            $0
-//                                + .vertical(10)
-//                                + (
-//                                    person.firstName
-//                                        + .foreground(.green)
-//                                        + CGSize(width: UIScreen.main.bounds.width, height: 44.0)
-//                                )
-//                        }
-                }
+                people
+                    .map { person -> AsyncNode<Identified, Events.Model> in
+                        let x = (person.mugshot / UIImage.self)
+                        let y = CGSize(width: UIScreen.main.bounds.width, height: 300)
+                        let z = Observable.just(Events.Model.didSelectPerson(person))
+                        return (x + y + z).map { Identified(id: person.id, view: $0) }
+                    }
             }
         return x / ListDivision.some
     }
 }
 
+struct Identified {
+    let id: AnyHashable
+    let view: UIView
+}
+
 func / <T>(
-    left: Observable<[AsyncNode<UIView, T>]>,
+    left: Observable<[AsyncNode<Identified, T>]>,
     right: ListDivision
 ) -> AsyncNode<Table<T>, Table<T>.Event> {
     let x = Table<T>(cells: [])
@@ -78,7 +74,7 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
     }
 
     let callbacks = PublishSubject<Event>()
-    var cells: [AsyncNode<UIView, T>] {
+    var cells: [AsyncNode<Identified, T>] {
         didSet {
             reloadData()
         }
@@ -87,7 +83,7 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
     private var visibleCallbacks: [UIView: DisposeBag] = [:]
     private let cleanup = DisposeBag()
 
-    init(cells: [AsyncNode<UIView, T>], frame: CGRect = .zero) {
+    init(cells: [AsyncNode<Identified, T>], frame: CGRect = .zero) {
         self.cells = cells
         let new = { () -> UIView in
             let x = UIView()
@@ -102,8 +98,8 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
         }
         self.cells = Array(
             repeating: AsyncNode(
-                initial: new(),
-                values: Observable<(UIView, Observable<T>)>.never(),
+                initial: Identified(id: "", view: new()),
+                values: Observable<(Identified, Observable<T>)>.never(),
                 callbacks: .never()
             ),
             count: 4
@@ -144,17 +140,17 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
             .subscribe(onNext: { [weak self] view, callbacks in
                 if let `self` = self {
                     let new = DisposeBag()
-                    self.visibleCallbacks[view] = new
+                    self.visibleCallbacks[view.view] = new
                     callbacks
                         .map(Event.other)
                         .bind(to: self.callbacks)
                         .disposed(by: new)
-                    view.translatesAutoresizingMaskIntoConstraints = false
-                    cell.contentView.addSubview(view)
-                    view.topAnchor.constraint(equalTo: cell.contentView.topAnchor).isActive = true
-                    view.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor).isActive = true
-                    view.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor).isActive = true
-                    view.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor).isActive = true
+                    view.view.translatesAutoresizingMaskIntoConstraints = false
+                    cell.contentView.addSubview(view.view)
+                    view.view.topAnchor.constraint(equalTo: cell.contentView.topAnchor).isActive = true
+                    view.view.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor).isActive = true
+                    view.view.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor).isActive = true
+                    view.view.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor).isActive = true
                 }
             })
             .disposed(by: whileVisible)
@@ -166,7 +162,7 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return cells[indexPath.row].initial.bounds.height
+        return cells.map { $0.initial.view }[indexPath.row].bounds.height
     }
 }
 
