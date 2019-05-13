@@ -9,6 +9,7 @@
 import UIKit
 import RxCocoa
 import RxSwift
+import Differ
 
 enum ListDivision {
     case some
@@ -25,13 +26,12 @@ extension Table {
             }
             .observeOn(MainScheduler.instance)
             .map { people in
-                people
-                    .map { person -> AsyncNode<Identified, Events.Model> in
-                        let x = (person.mugshot / UIImage.self)
-                        let y = CGSize(width: UIScreen.main.bounds.width, height: 300)
-                        let z = Observable.just(Events.Model.didSelectPerson(person))
-                        return (x + y + z).map { Identified(id: person.id, view: $0) }
-                    }
+                people.map { person -> AsyncNode<Identified, Events.Model> in
+                    let x = (person.mugshot / UIImage.self)
+                    let y = CGSize(width: UIScreen.main.bounds.width, height: 300)
+                    let z = Observable.just(Events.Model.didSelectPerson(person))
+                    return (x + y + z).map { Identified(id: person.id, view: $0) }
+                }
             }
         return x / ListDivision.some
     }
@@ -76,7 +76,10 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
     let callbacks = PublishSubject<Event>()
     var cells: [AsyncNode<Identified, T>] {
         didSet {
-            reloadData()
+            animateRowAndSectionChanges(
+                oldData: [oldValue.map { $0.initial.id }],
+                newData: [cells.map { $0.initial.id }]
+            )
         }
     }
     private var visiblePresentations: [UIView: DisposeBag] = [:]
@@ -85,20 +88,20 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
 
     init(cells: [AsyncNode<Identified, T>], frame: CGRect = .zero) {
         self.cells = cells
-        let new = { () -> UIView in
-            let x = UIView()
-            x.frame = CGRect(
-                origin: .zero,
-                size: CGSize(
-                    width: UIScreen.main.bounds.size.width,
-                    height: 300
-                )
-            )
-            return x
-        }
         self.cells = Array(
             repeating: AsyncNode(
-                initial: Identified(id: "", view: new()),
+                initial: Identified(
+                    id: "",
+                    view: UIView().with(
+                        frame: .init(
+                            origin: .zero,
+                            size: CGSize(
+                                width: UIScreen.main.bounds.size.width,
+                                height: 300
+                            )
+                        )
+                    )
+                ),
                 values: Observable<(Identified, Observable<T>)>.never(),
                 callbacks: .never()
             ),
@@ -174,4 +177,11 @@ func + (left: UITableViewCell, right: UIView) -> UITableViewCell {
     right.leadingAnchor.constraint(equalTo: left.contentView.leadingAnchor, constant: 0).isActive = true
     right.trailingAnchor.constraint(equalTo: left.contentView.trailingAnchor, constant: 0).isActive = true
     return left
+}
+
+private extension UIView {
+    func with(frame: CGRect) -> Self {
+        self.frame = frame
+        return self
+    }
 }

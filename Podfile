@@ -11,6 +11,7 @@ target 'Compositions' do
   pod 'RxGesture'
   pod 'RxCallbacks'
   pod 'RxAlamofire'
+  pod 'Differ'
 
   target 'CompositionsTests' do
     inherit! :search_paths
