@@ -81,7 +81,7 @@ func + <T>(left: Observable<UIImage>, right: CGSize) -> (Observable<T>) -> Async
         x.contentMode = .scaleAspectFill
         x.clipsToBounds = true
         return AsyncNode<UIView, T>(
-            initial: x, //UIImageView.cached + right,
+            initial: x + right, //UIImageView.cached + right,
             values: left
                 .map { $0.imageWith(size: right) }
                 .observeOn(MainScheduler.instance)
