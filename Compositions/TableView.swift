@@ -16,8 +16,8 @@ enum ListDivision {
 }
 
 extension Table {
-    static func example() -> AsyncNode<Table<Events.Model>, Table<Events.Model>.Event> {
-        let x = (URL(string: "https://rzdoorman.herokuapp.com/api/v1/facilities/14")! / TopLevelThing.self)
+    static func example() -> AsyncNode<Table<Events.Model>, Table<Events.Model>.Event> { return
+        (URL(string: "https://rzdoorman.herokuapp.com/api/v1/facilities/14")! / TopLevelThing.self)
             .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
             .map { $0
                 .companies
@@ -26,14 +26,14 @@ extension Table {
             }
             .observeOn(MainScheduler.instance)
             .map { people in
-                people.map { person -> AsyncNode<Hashed, Events.Model> in
+                people.map { person in
                     let x = (person.mugshot / UIImage.self)
                     let y = CGSize(width: UIScreen.main.bounds.width, height: 300)
                     let z = Observable.just(Events.Model.didSelectPerson(person))
                     return (x + y + z).map { Hashed(id: person.id, view: $0) }
                 }
             }
-        return x / ListDivision.some
+            / ListDivision.some
     }
 }
 
