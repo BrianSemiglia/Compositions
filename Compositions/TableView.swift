@@ -26,24 +26,24 @@ extension Table {
             }
             .observeOn(MainScheduler.instance)
             .map { people in
-                people.map { person -> AsyncNode<Identified, Events.Model> in
+                people.map { person -> AsyncNode<Hashed, Events.Model> in
                     let x = (person.mugshot / UIImage.self)
                     let y = CGSize(width: UIScreen.main.bounds.width, height: 300)
                     let z = Observable.just(Events.Model.didSelectPerson(person))
-                    return (x + y + z).map { Identified(id: person.id, view: $0) }
+                    return (x + y + z).map { Hashed(id: person.id, view: $0) }
                 }
             }
         return x / ListDivision.some
     }
 }
 
-struct Identified {
+struct Hashed {
     let id: AnyHashable
     let view: UIView
 }
 
 func / <T>(
-    left: Observable<[AsyncNode<Identified, T>]>,
+    left: Observable<[AsyncNode<Hashed, T>]>,
     right: ListDivision
 ) -> AsyncNode<Table<T>, Table<T>.Event> {
     let x = Table<T>(cells: [])
@@ -74,7 +74,7 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
     }
 
     let callbacks = PublishSubject<Event>()
-    var cells: [AsyncNode<Identified, T>] {
+    var cells: [AsyncNode<Hashed, T>] {
         didSet {
             animateRowAndSectionChanges(
                 oldData: [oldValue.map { $0.initial.id }],
@@ -86,11 +86,11 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
     private var visibleCallbacks: [UIView: DisposeBag] = [:]
     private let cleanup = DisposeBag()
 
-    init(cells: [AsyncNode<Identified, T>], frame: CGRect = .zero) {
+    init(cells: [AsyncNode<Hashed, T>], frame: CGRect = .zero) {
         self.cells = cells
         self.cells = Array(
             repeating: AsyncNode(
-                initial: Identified(
+                initial: Hashed(
                     id: "",
                     view: UIView().with(
                         frame: .init(
@@ -102,7 +102,7 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
                         )
                     )
                 ),
-                values: Observable<(Identified, Observable<T>)>.never(),
+                values: Observable<(Hashed, Observable<T>)>.never(),
                 callbacks: .never()
             ),
             count: 4
