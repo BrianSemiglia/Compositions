@@ -1,28 +1,29 @@
 PODS:
   - Alamofire (4.8.2)
   - Differ (1.4.1)
-  - RxAlamofire (4.4.0):
-    - RxAlamofire/Core (= 4.4.0)
-  - RxAlamofire/Core (4.4.0):
+  - RxAlamofire (5.0.0):
+    - RxAlamofire/Core (= 5.0.0)
+  - RxAlamofire/Core (5.0.0):
     - Alamofire (~> 4.8)
-    - RxSwift (~> 4.4)
-  - RxAtomic (4.4.2)
-  - RxCallbacks (0.1.1):
-    - RxSwift (~> 4.4.0)
-  - RxCocoa (4.4.2):
-    - RxSwift (>= 4.4.2, ~> 4.4)
-  - RxGesture (2.1.0):
-    - RxCocoa (~> 4.4.0)
-    - RxSwift (~> 4.4.0)
-  - RxSwift (4.4.2):
-    - RxAtomic (>= 4.4.2, ~> 4.4)
+    - RxSwift (~> 5.0)
+  - RxCallbacks (0.1.3):
+    - RxSwift (~> 5.0)
+  - RxCocoa (5.0.0):
+    - RxRelay (~> 5)
+    - RxSwift (~> 5)
+  - RxGesture (2.2.0):
+    - RxCocoa (~> 5)
+    - RxSwift (~> 5)
+  - RxRelay (5.0.0):
+    - RxSwift (~> 5)
+  - RxSwift (5.0.0)
 
 DEPENDENCIES:
   - Differ
   - RxAlamofire
   - RxCallbacks
   - RxCocoa
-  - RxGesture
+  - RxGesture (from `https://gist.githubusercontent.com/trispo/29ec5dfefca0ecf8a57fc2f3fc3c4956/raw/bf3f85d6762405e98a638080909d19cb65c35f61/RxGesture.podspec`)
   - RxSwift
 
 SPEC REPOS:
@@ -30,22 +31,25 @@ SPEC REPOS:
     - Alamofire
     - Differ
     - RxAlamofire
-    - RxAtomic
     - RxCallbacks
     - RxCocoa
-    - RxGesture
+    - RxRelay
     - RxSwift
+
+EXTERNAL SOURCES:
+  RxGesture:
+    :podspec: https://gist.githubusercontent.com/trispo/29ec5dfefca0ecf8a57fc2f3fc3c4956/raw/bf3f85d6762405e98a638080909d19cb65c35f61/RxGesture.podspec
 
 SPEC CHECKSUMS:
   Alamofire: ae5c501addb7afdbb13687d7f2f722c78734c2d3
   Differ: ca4350872e32a1aeedf3d9e2d9e47127833bfa9c
-  RxAlamofire: ecc5e458ee11250938d23360179eb3a37cd3ee1e
-  RxAtomic: d00e97c10db88c6f08540e0bf2752fc5a2404167
-  RxCallbacks: 73554986e14f509eda18c615e019bb67d576a97f
-  RxCocoa: 477990dc3b4c3ff55fb0ac77e1cc06244e0aaec8
-  RxGesture: 7f6dfb45dbde06e618c24442d38493e3144f2c95
-  RxSwift: 74c29b693c8e42b0f64400e8b06564575742d649
+  RxAlamofire: e7875a012aff55345672d0f70a2a9cd6aeb0f211
+  RxCallbacks: 3e08b3ed7bf2f6290b7aec7c3a614d0819d9abc2
+  RxCocoa: fcf32050ac00d801f34a7f71d5e8e7f23026dcd8
+  RxGesture: 31b127c3f52498b45cc44c1c793927a275aa99bf
+  RxRelay: 4f7409406a51a55cd88483f21ed898c234d60f18
+  RxSwift: 8b0671caa829a763bbce7271095859121cbd895f
 
-PODFILE CHECKSUM: eccfe6339d26084069d4af83b30934e21466a730
+PODFILE CHECKSUM: e9660b4cd6bd42056ae86d01e5fd60d1a3ce5c53
 
 COCOAPODS: 1.6.0
