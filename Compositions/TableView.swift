@@ -19,41 +19,23 @@ extension Table {
     static func example() -> AsyncNode<Table<Events.Model>, Table<Events.Model>.Event> { return
         (URL(string: "https://rzdoorman.herokuapp.com/api/v1/facilities/14")! / TopLevelThing.self)
             .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .flatMap {
-                Observable.merge(
-                    Observable
-                        .just(
-                            $0
-                                .companies
-                                .flatMap { $0.departments }
-                                .flatMap { $0.employees }
-                        ),
-                    Observable
-                        .just(
-                            $0
-                                .companies
-                                .flatMap { $0.departments }
-                                .flatMap {
-                                    zip(
-                                        $0.employees,
-                                        $0.employees.map {
-                                            Person(
-                                                firstName: $0.firstName,
-                                                mugshot: $0.mugshot,
-                                                id: $0.id + 1000
-                                            )
-                                        }
-                                    )
-                                    .flatMap { [$0, $1] }
-                                }
-                        )
-                        .delay(
-                            5,
-                            scheduler: MainScheduler()
-                        )
-                )
+            .flatMap { thing in
+                Observable<Int>
+                    .interval(
+                        5.0,
+                        scheduler: MainScheduler()
+                    )
+                    .map { _ in }
+                    .startWith(())
+                    .map {
+                        thing
+                            .companies
+                            .flatMap { $0.departments }
+                            .flatMap { $0.employees }
+                            .shuffled()
+                    }
             }
-            .map { $0.prefix(4) }
+            .debug()
             .observeOn(MainScheduler.instance)
             .map { people in
                 people.map { person in
