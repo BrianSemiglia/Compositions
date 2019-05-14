@@ -19,31 +19,61 @@ extension Table {
     static func example() -> AsyncNode<Table<Events.Model>, Table<Events.Model>.Event> { return
         (URL(string: "https://rzdoorman.herokuapp.com/api/v1/facilities/14")! / TopLevelThing.self)
             .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .map { $0
-                .companies
-                .flatMap { $0.departments }
-                .flatMap { $0.employees }
+            .flatMap {
+                Observable.merge(
+                    Observable
+                        .just(
+                            $0
+                                .companies
+                                .flatMap { $0.departments }
+                                .flatMap { $0.employees }
+                        ),
+                    Observable
+                        .just(
+                            $0
+                                .companies
+                                .flatMap { $0.departments }
+                                .flatMap {
+                                    zip(
+                                        $0.employees,
+                                        $0.employees.map {
+                                            Person(
+                                                firstName: $0.firstName,
+                                                mugshot: $0.mugshot,
+                                                id: $0.id + 1000
+                                            )
+                                        }
+                                    )
+                                    .flatMap { [$0, $1] }
+                                }
+                        )
+                        .delay(
+                            5,
+                            scheduler: MainScheduler()
+                        )
+                )
             }
+            .map { $0.prefix(4) }
             .observeOn(MainScheduler.instance)
             .map { people in
                 people.map { person in
                     let x = (person.mugshot / UIImage.self)
                     let y = CGSize(width: UIScreen.main.bounds.width, height: 300)
                     let z = Observable.just(Events.Model.didSelectPerson(person))
-                    return (x + y + z).map { Hashed(id: person.id, view: $0) }
+                    return (x + y + z).map { Hashed(id: person.id, value: $0) }
                 }
             }
             / ListDivision.some
     }
 }
 
-struct Hashed {
+struct Hashed<T> {
     let id: AnyHashable
-    let view: UIView
+    let value: T
 }
 
 func / <T>(
-    left: Observable<[AsyncNode<Hashed, T>]>,
+    left: Observable<[AsyncNode<Hashed<UIView>, T>]>,
     right: ListDivision
 ) -> AsyncNode<Table<T>, Table<T>.Event> {
     let x = Table<T>(cells: [])
@@ -74,11 +104,15 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
     }
 
     let callbacks = PublishSubject<Event>()
-    var cells: [AsyncNode<Hashed, T>] {
+    var cells: [AsyncNode<Hashed<UIView>, T>] {
         didSet {
             animateRowAndSectionChanges(
                 oldData: [oldValue.map { $0.initial.id }],
-                newData: [cells.map { $0.initial.id }]
+                newData: [cells.map { $0.initial.id }],
+                rowDeletionAnimation: DiffRowAnimation.fade,
+                rowInsertionAnimation: DiffRowAnimation.top,
+                sectionDeletionAnimation: DiffRowAnimation.fade,
+                sectionInsertionAnimation: DiffRowAnimation.top
             )
         }
     }
@@ -86,7 +120,7 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
     private var visibleCallbacks: [UIView: DisposeBag] = [:]
     private let cleanup = DisposeBag()
 
-    init(cells: [AsyncNode<Hashed, T>], frame: CGRect = .zero) {
+    init(cells: [AsyncNode<Hashed<UIView>, T>], frame: CGRect = .zero) {
         self.cells = cells
         super.init(
             frame: frame,
@@ -121,20 +155,17 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
         visiblePresentations[cell] = whileVisible
         cells[indexPath.row]
             .values
-            .subscribe(onNext: { [weak self] view, callbacks in
+            .subscribe(onNext: { [weak self] content, callbacks in
                 if let `self` = self {
                     let new = DisposeBag()
-                    self.visibleCallbacks[view.view] = new
-                    callbacks
-                        .map(Event.other)
-                        .bind(to: self.callbacks)
-                        .disposed(by: new)
-                    view.view.translatesAutoresizingMaskIntoConstraints = false
-                    cell.contentView.addSubview(view.view)
-                    view.view.topAnchor.constraint(equalTo: cell.contentView.topAnchor).isActive = true
-                    view.view.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor).isActive = true
-                    view.view.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor).isActive = true
-                    view.view.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor).isActive = true
+                    self.visibleCallbacks[content.value] = new
+                    callbacks.map(Event.other).bind(to: self.callbacks).disposed(by: new)
+                    content.value.translatesAutoresizingMaskIntoConstraints = false
+                    cell.contentView.addSubview(content.value)
+                    content.value.topAnchor.constraint(equalTo: cell.contentView.topAnchor).isActive = true
+                    content.value.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor).isActive = true
+                    content.value.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor).isActive = true
+                    content.value.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor).isActive = true
                 }
             })
             .disposed(by: whileVisible)
@@ -146,7 +177,7 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return cells.map { $0.initial.view }[indexPath.row].bounds.height
+        return cells.map { $0.initial.value }[indexPath.row].bounds.height
     }
 }
 
