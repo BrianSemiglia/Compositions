@@ -63,8 +63,7 @@ func + <T>(left: CGFloat.Axis, right: AsyncNode<UIView, T>) -> AsyncNode<UIStack
             }
             x.addArrangedSubview(view)
             return (x, callback)
-        },
-        callbacks: .never()
+        }
     )
 }
 

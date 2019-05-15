@@ -84,8 +84,7 @@ func / <T>(
                 x,
                 x.callbacks
             )
-        },
-        callbacks: .never()
+        }
     )
 }
 
@@ -119,8 +118,7 @@ func / <T>(
                 x,
                 x.callbacks
             )
-        },
-        callbacks: .never()
+        }
     )
 }
 
