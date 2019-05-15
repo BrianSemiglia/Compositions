@@ -27,7 +27,14 @@ struct AsyncNode<A, B> {
     func map<C>(_ f: @escaping (A) -> C) -> AsyncNode<C, B> {
         return AsyncNode<C, B>(
             initial: f(initial),
-            values: values.map { (f($0.0), $0.1) }
+            values: values.skip(1).map { (f($0.0), $0.1) }
+        )
+    }
+
+    func flatMap<C>(_ f: @escaping (A) -> AsyncNode<C, B>) -> AsyncNode<C, B> {
+        return AsyncNode<C, B>(
+            initial: f(initial).initial,
+            values: values.skip(1).flatMap { f($0.0).values }
         )
     }
     

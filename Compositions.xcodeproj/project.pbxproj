@@ -232,6 +232,7 @@
 				5BE95E33221BA9B900241571 /* Sources */,
 				5BE95E34221BA9B900241571 /* Frameworks */,
 				5BE95E35221BA9B900241571 /* Resources */,
+				AE5CE13844A8403165FF4EC3 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -358,6 +359,30 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Compositions/Pods-Compositions-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		AE5CE13844A8403165FF4EC3 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-CompositionsTests/Pods-CompositionsTests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/RxBlocking/RxBlocking.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxBlocking.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CompositionsTests/Pods-CompositionsTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		F1F5BCAA009ED873BF5FDC7B /* [CP] Check Pods Manifest.lock */ = {

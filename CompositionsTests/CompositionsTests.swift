@@ -8,6 +8,7 @@
 
 import XCTest
 import RxSwift
+import RxBlocking
 
 @testable import Compositions
 
@@ -38,6 +39,48 @@ class CompositionsTests: XCTestCase {
         self.measure {
             // Put the code you want to measure the time of here.
         }
+    }
+
+    func testAsyncNode() {
+        let a = AsyncNode(
+            initial: 1,
+            values: Observable.just(
+                (1, Observable<Void>.never())
+            )
+        )
+        XCTAssertEqual(a.initial, 1)
+        XCTAssertEqual(try a.values.map { $0.0 }.toBlocking().toArray(), [1, 1])
+    }
+
+    func testMap() throws {
+        let a = AsyncNode(
+            initial: 1,
+            values: Observable.just(
+                (1, Observable<Void>.never())
+            )
+        )
+        let b = a.map { $0 + 1 }
+        XCTAssertEqual(b.initial, 2)
+        XCTAssertEqual(try b.values.map { $0.0 }.toBlocking().toArray(), [2, 2])
+    }
+
+    func testFlatMap() throws {
+        let a = AsyncNode(
+            initial: 1,
+            values: Observable.just(
+                (1, Observable<Void>.never())
+            )
+        )
+        let b = a.flatMap {
+            AsyncNode(
+                initial: $0 + 1,
+                values: Observable.just(
+                    (1, Observable<Void>.never())
+                )
+            )
+        }
+        XCTAssertEqual(b.initial, 2)
+        XCTAssertEqual(try b.values.map { $0.0 }.toBlocking().toArray(), [2, 2, 1])
     }
 
 }
