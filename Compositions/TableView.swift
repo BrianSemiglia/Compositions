@@ -131,25 +131,18 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
         forRowAt indexPath: IndexPath
     ) {
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
-        let whileVisible = DisposeBag()
-        // too many cells loaded on init and being retained; this is causing duplicate callbacks
-        visiblePresentations[cell] = whileVisible
         cells[indexPath.row]
+            .map { cell + $0.value }
             .values
-            .subscribe(onNext: { [weak self] content, callbacks in
+            .subscribe(onNext: { [weak self] cell, callback in
                 if let `self` = self {
-                    let new = DisposeBag()
-                    self.visibleCallbacks[content.value] = new
-                    callbacks.map(Event.other).bind(to: self.callbacks).disposed(by: new)
-                    content.value.translatesAutoresizingMaskIntoConstraints = false
-                    cell.contentView.addSubview(content.value)
-                    content.value.topAnchor.constraint(equalTo: cell.contentView.topAnchor).isActive = true
-                    content.value.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor).isActive = true
-                    content.value.bottomAnchor.constraint(equalTo: cell.contentView.bottomAnchor).isActive = true
-                    content.value.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor).isActive = true
+                    callback
+                        .map(Event.other)
+                        .bind(to: self.callbacks)
+                        .disposed(by: self.visibleCallbacks.replacing(cell))
                 }
             })
-            .disposed(by: whileVisible)
+            .disposed(by: visiblePresentations.replacing(cell))
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -170,4 +163,12 @@ func + (left: UITableViewCell, right: UIView) -> UITableViewCell {
     right.leadingAnchor.constraint(equalTo: left.contentView.leadingAnchor, constant: 0).isActive = true
     right.trailingAnchor.constraint(equalTo: left.contentView.trailingAnchor, constant: 0).isActive = true
     return left
+}
+
+private extension Dictionary where Key == UIView, Value == DisposeBag {
+    mutating func replacing(_ index: UIView) -> DisposeBag {
+        let new = DisposeBag()
+        self[index] = new
+        return new
+    }
 }
