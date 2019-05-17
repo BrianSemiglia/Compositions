@@ -16,33 +16,69 @@ enum ListDivision {
 }
 
 extension Table {
+    static func example_() -> AsyncNode<Table<Void>, Table<Void>.Event> {
+        let x = Observable
+            .just(Array(0...100))
+            .map { things in
+                things
+                    .map { next -> AsyncNode<Hashed<UIView>, Void> in
+                        let x = UILabel(frame: .zero)
+                        x.font = UIFont.systemFont(ofSize: 64.0)
+                        x.text = String(next)
+                        x.sizeToFit()
+                        x.alpha = 0
+                        return AsyncNode(
+                            initial: x,
+                            values: Observable
+                                .just(x)
+                                .mutating(\.alpha, 0)
+                                .delay(
+                                    .seconds(1),
+                                    scheduler: MainScheduler()
+                                )
+                                .mutating(\.alpha, 1, duration: 3)
+                                .map { ($0, .never()) }
+                        )
+                        .map {
+                            Hashed<UIView>(
+                                id: next,
+                                value: $0
+                            )
+                        }
+                    }
+            }
+            / ListDivision.some
+        return x
+    }
+
     static func example() -> AsyncNode<Table<Events.Model>, Table<Events.Model>.Event> { return
         (URL(string: "https://rzdoorman.herokuapp.com/api/v1/facilities/14")! / TopLevelThing.self)
             .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInteractive))
-            .flatMap { thing in
-                Observable<Int>
-                    .interval(
-                        5.0,
-                        scheduler: MainScheduler()
-                    )
-                    .map { _ in }
-                    .startWith(())
-                    .map {
-                        thing
-                            .companies
-                            .flatMap { $0.departments }
-                            .flatMap { $0.employees }
-                            .shuffled()
-                    }
+            .map {
+                $0
+                    .companies
+                    .flatMap { $0.departments }
+                    .flatMap { $0.employees }
+                    .shuffled()
             }
-            .debug()
             .observeOn(MainScheduler.instance)
             .map { people in
                 people.map { person in
                     let x = (person.mugshot / UIImage.self)
                     let y = CGSize(width: UIScreen.main.bounds.width, height: 300)
                     let z = Observable.just(Events.Model.didSelectPerson(person))
-                    return (x + y + z).map { Hashed(id: person.id, value: $0) }
+                    return (x + y + z)
+                        .flatMap { view in
+                            AsyncNode(
+                                initial: view,
+                                values: Observable
+                                    .just(view)
+                                    .mutating(\.alpha, 0)
+                                    .mutating(\.alpha, 1, duration: 3)
+                                    .map { ($0, .never()) }
+                            )
+                        }
+                        .map { Hashed(id: person.id, value: $0) }
                 }
             }
             / ListDivision.some
@@ -170,5 +206,30 @@ private extension Dictionary where Key == UIView, Value == DisposeBag {
         let new = DisposeBag()
         self[index] = new
         return new
+    }
+}
+
+extension ObservableType {
+    func mutating<T>(_ keyPath: ReferenceWritableKeyPath<Element, T>, _ value: T, duration: TimeInterval) -> Observable<Element> { return
+        flatMap { item in
+            Observable.create { o in
+                UIView.animate(
+                    withDuration: duration,
+                    animations: {
+                        item[keyPath: keyPath] = value
+                    }, completion: { _ in
+                        o.on(.next(item))
+                        o.on(.completed)
+                    }
+                )
+                return Disposables.create()
+            }
+        }
+    }
+    func mutating<T>(_ keyPath: ReferenceWritableKeyPath<Element, T>, _ value: T) -> Observable<Element> { return
+        map {
+            $0[keyPath: keyPath] = value
+            return $0
+        }
     }
 }
