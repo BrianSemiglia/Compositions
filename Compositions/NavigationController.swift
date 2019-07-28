@@ -66,7 +66,7 @@ func / <T>(left: Observable<[AsyncNode<UIStackView, T>]>, right: ScreenDivision)
     let x = Navigation<T>(views: [])
     return AsyncNode(
         initial: x,
-        values: left.map {
+        subsequent: left.map {
             x.views = $0.map { $0.map { $0 as UIView } }
             return (x, x.callbacks)
         }
@@ -77,7 +77,7 @@ func / <T>(left: Observable<[AsyncNode<UIView, T>]>, right: ScreenDivision) -> A
     let x = Navigation<T>(views: [])
     return AsyncNode(
         initial: x,
-        values: left.map {
+        subsequent: left.map {
             x.views = $0
             return (x, x.callbacks)
         }
@@ -135,12 +135,12 @@ final class Navigation<T>: UINavigationController {
     var views: [AsyncNode<UIView, T>] {
         didSet {
             viewControllers = views.map {
-                let x = AsyncViewController(model: $0.values, index: 0)
+                let x = AsyncViewController(model: $0.subsequent, index: 0)
                 x.view.backgroundColor = .white
                 return x
             }
             Observable
-                .merge(views.map { $0.values.flatMap { $0.1 } })
+                .merge(views.map { $0.subsequent.flatMap { $0.1 } })
                 .bind(to: callbacks)
                 .disposed(by: cleanup)
         }
@@ -154,7 +154,7 @@ final class Navigation<T>: UINavigationController {
         self.views = views
         if views.count > 0 {
             viewControllers = views.map {
-                let x = AsyncViewController(model: $0.values, index: 0)
+                let x = AsyncViewController(model: $0.subsequent, index: 0)
                 x.view.backgroundColor = .white
                 return x
             }

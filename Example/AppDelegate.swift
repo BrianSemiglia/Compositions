@@ -248,7 +248,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         paged.initial.frame = UIScreen.main.bounds
         window?.rootViewController?.view.addSubview(paged.initial)
         paged
-            .values
+            .subsequent
             .flatMap { $0.1.debug() }
             .subscribe(onNext: {
                 self.events.on(.next($0))

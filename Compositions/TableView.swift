@@ -53,7 +53,7 @@ func / <T>(
     let x = Table<T>(cells: [])
     return AsyncNode(
         initial: x,
-        values: left.map { x.cells = $0; return (x, x.callbacks); }
+        subsequent: left.map { x.cells = $0; return (x, x.callbacks); }
     )
 }
 
@@ -102,7 +102,7 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
         self.cells = Array(
             repeating: AsyncNode(
                 initial: new(),
-                values: Observable<(UIView, Observable<T>)>.never()
+                subsequent: Observable<(UIView, Observable<T>)>.never()
             ),
             count: 4
         )
@@ -138,7 +138,7 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
         // too many cells loaded on init and being retained; this is causing duplicate callbacks
         visiblePresentations[cell] = whileVisible
         cells[indexPath.row]
-            .values
+            .subsequent
             .subscribe(onNext: { [weak self] view, callbacks in
                 if let `self` = self {
                     let new = DisposeBag()

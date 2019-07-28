@@ -32,7 +32,7 @@ func + <T>(left: CGFloat.Axis, right: AsyncNode<UIView, T>) -> AsyncNode<UIStack
     }
     return AsyncNode(
         initial: x,
-        values: right.values.map { view, callback in
+        subsequent: right.subsequent.map { view, callback in
             switch left {
             case let .horizontal(length):
                 x.bounds = CGRect(

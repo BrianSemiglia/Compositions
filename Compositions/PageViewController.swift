@@ -77,7 +77,7 @@ func / <T>(
     )
     return AsyncNode(
         initial: x,
-        values: left.map {
+        subsequent: left.map {
             x.pages = $0;
 //            x.begin()
             return (
@@ -112,7 +112,7 @@ func / <T>(
     
     return AsyncNode(
         initial: x,
-        values: Observable.just(left).map {
+        subsequent: Observable.just(left).map {
             x.pages = $0;
             return (
                 x,
@@ -209,7 +209,7 @@ final class PageViewController<T>: UIView, UIPageViewControllerDataSource {
 //            .disposed(by: cleanup)
 //        views.first?.begin()
         if let first = pages.first {
-            let x = AsyncViewController(model: first.values, index: 0)
+            let x = AsyncViewController(model: first.subsequent, index: 0)
             events = x.callbacks.subscribe(onNext: {
                 self.callbacks.on(.next($0))
             })
@@ -236,7 +236,7 @@ final class PageViewController<T>: UIView, UIPageViewControllerDataSource {
             input.end()
             let new = input.index > 0
                 ? AsyncViewController(
-                    model: pages[input.index - 1].values,
+                    model: pages[input.index - 1].subsequent,
                     index: input.index - 1
                 )
                 : Optional<AsyncViewController<T>>.none
@@ -270,7 +270,7 @@ final class PageViewController<T>: UIView, UIPageViewControllerDataSource {
             input.end()
             let new = input.index < pages.count - 1
                 ? AsyncViewController(
-                    model: pages[input.index + 1].values,
+                    model: pages[input.index + 1].subsequent,
                     index: input.index + 1
                 )
                 : Optional<AsyncViewController<T>>.none

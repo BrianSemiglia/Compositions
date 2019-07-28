@@ -17,17 +17,17 @@ struct AsyncNode<A, B> {
      */
     
     let initial: A
-    let values: Observable<(A, Observable<B>)>
+    let subsequent: Observable<(A, Observable<B>)>
     
-    init(initial: A, values: Observable<(A, Observable<B>)>) {
+    init(initial: A, subsequent: Observable<(A, Observable<B>)>) {
         self.initial = initial
-        self.values = values.startWith((initial, .never()))
+        self.subsequent = subsequent.startWith((initial, .never()))
     }
     
     func map<C>(_ f: @escaping (A) -> C) -> AsyncNode<C, B> {
         return AsyncNode<C, B>(
             initial: f(initial),
-            values: values.map { (f($0.0), $0.1) }
+            subsequent: subsequent.map { (f($0.0), $0.1) }
         )
     }
     
@@ -46,8 +46,8 @@ struct AsyncNode<A, B> {
     ) -> AsyncNode<C, D> { return
         AsyncNode<C, D>(
             initial: f(a.initial, b.initial),
-            values: Observable
-                .combineLatest(a.values, b.values)
+            subsequent: Observable
+                .combineLatest(a.subsequent, b.subsequent)
                 .map { a in (
                     f(a.0.0, a.1.0),
                     Observable.merge(
@@ -65,7 +65,7 @@ extension Collection {
         return reduce(
             AsyncNode<[A], B>(
                 initial: [],
-                values: .just(([], .never()))
+                subsequent: .just(([], .never()))
             )
         ) { a, b in
             return a.zip(
