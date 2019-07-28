@@ -16,22 +16,18 @@ struct AsyncNode<A, B> {
      Probably not: node of nodes is lazy and isolated?
      */
     
-    private var cache: A?
     let initial: A
     let values: Observable<(A, Observable<B>)>
-    let callbacks: Observable<B>
     
-    init(initial: A, values: Observable<(A, Observable<B>)>, callbacks: Observable<B>) {
+    init(initial: A, values: Observable<(A, Observable<B>)>) {
         self.initial = initial
         self.values = values.startWith((initial, .never()))
-        self.callbacks = callbacks
     }
     
     func map<C>(_ f: @escaping (A) -> C) -> AsyncNode<C, B> {
         return AsyncNode<C, B>(
             initial: f(initial),
-            values: values.map { (f($0.0), $0.1) },
-            callbacks: callbacks
+            values: values.map { (f($0.0), $0.1) }
         )
     }
     
@@ -59,8 +55,6 @@ struct AsyncNode<A, B> {
                         a.0.1
                     )
                 )}
-            ,
-            callbacks: .merge(a.callbacks, b.callbacks)
         )
     }
 }
@@ -71,8 +65,7 @@ extension Collection {
         return reduce(
             AsyncNode<[A], B>(
                 initial: [],
-                values: .just(([], .never())),
-                callbacks: .never()
+                values: .just(([], .never()))
             )
         ) { a, b in
             return a.zip(

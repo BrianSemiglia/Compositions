@@ -92,8 +92,6 @@ func + <T>(left: Observable<UIImage>, right: CGSize) -> (Observable<T>) -> Async
                     x.image = $0.imageWith(size: right)
                     return (x, x.rx.tapGesture().when(.recognized).flatMap { _ in o })
                 }
-            ,
-            callbacks: .never()
         )
     }
 }

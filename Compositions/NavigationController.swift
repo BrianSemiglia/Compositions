@@ -69,8 +69,7 @@ func / <T>(left: Observable<[AsyncNode<UIStackView, T>]>, right: ScreenDivision)
         values: left.map {
             x.views = $0.map { $0.map { $0 as UIView } }
             return (x, x.callbacks)
-        },
-        callbacks: .never()
+        }
     )
 }
 
@@ -81,8 +80,7 @@ func / <T>(left: Observable<[AsyncNode<UIView, T>]>, right: ScreenDivision) -> A
         values: left.map {
             x.views = $0
             return (x, x.callbacks)
-        },
-        callbacks: .never()
+        }
     )
 }
 
@@ -142,7 +140,7 @@ final class Navigation<T>: UINavigationController {
                 return x
             }
             Observable
-                .merge(views.map { $0.callbacks })
+                .merge(views.map { $0.values.flatMap { $0.1 } })
                 .bind(to: callbacks)
                 .disposed(by: cleanup)
         }

@@ -53,8 +53,7 @@ func / <T>(
     let x = Table<T>(cells: [])
     return AsyncNode(
         initial: x,
-        values: left.map { x.cells = $0; return (x, x.callbacks); },
-        callbacks: .never()
+        values: left.map { x.cells = $0; return (x, x.callbacks); }
     )
 }
 
@@ -103,8 +102,7 @@ final class Table<T>: UITableView, UITableViewDataSource, UITableViewDelegate {
         self.cells = Array(
             repeating: AsyncNode(
                 initial: new(),
-                values: Observable<(UIView, Observable<T>)>.never(),
-                callbacks: .never()
+                values: Observable<(UIView, Observable<T>)>.never()
             ),
             count: 4
         )
