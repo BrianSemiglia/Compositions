@@ -15,6 +15,8 @@ target 'Compositions' do
   target 'CompositionsTests' do
     inherit! :search_paths
     # Pods for testing
+    pod 'RxBlocking'
+    pod 'RxTest'
   end
 
 end

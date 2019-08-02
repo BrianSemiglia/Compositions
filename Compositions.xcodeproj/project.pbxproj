@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -37,6 +37,8 @@
 		D315AEBC22374DEE00EB58CB /* Enum.swift in Sources */ = {isa = PBXBuildFile; fileRef = D315AEBB22374DEE00EB58CB /* Enum.swift */; };
 		D315AEBE223899DD00EB58CB /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D315AEBD223899DD00EB58CB /* Collection.swift */; };
 		D31DC608223D67580084B374 /* AsyncNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31DC607223D67580084B374 /* AsyncNode.swift */; };
+		D3285B3822F422FD00C516C6 /* Lens.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3285B3722F422FD00C516C6 /* Lens.swift */; };
+		D3285B3A22F4231B00C516C6 /* LensTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3285B3922F4231B00C516C6 /* LensTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,6 +89,8 @@
 		D315AEBB22374DEE00EB58CB /* Enum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enum.swift; sourceTree = "<group>"; };
 		D315AEBD223899DD00EB58CB /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		D31DC607223D67580084B374 /* AsyncNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncNode.swift; sourceTree = "<group>"; };
+		D3285B3722F422FD00C516C6 /* Lens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lens.swift; sourceTree = "<group>"; };
+		D3285B3922F4231B00C516C6 /* LensTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LensTests.swift; sourceTree = "<group>"; };
 		F755B33993CF092F339F3B2A /* Pods-CompositionsTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CompositionsTests.release.xcconfig"; path = "Target Support Files/Pods-CompositionsTests/Pods-CompositionsTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -157,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				5BE95E3B221BA9B900241571 /* CompositionsTests.swift */,
+				D3285B3922F4231B00C516C6 /* LensTests.swift */,
 				5BE95E3D221BA9B900241571 /* Info.plist */,
 			);
 			path = CompositionsTests;
@@ -174,6 +179,7 @@
 				5BADE4A3221CD72F0024E1AD /* MKDirections.swift */,
 				5BE95E4E221BADE300241571 /* NavigationController.swift */,
 				5BE95E55221BADE300241571 /* Node.swift */,
+				D3285B3722F422FD00C516C6 /* Lens.swift */,
 				5BE95E53221BADE300241571 /* PageViewController.swift */,
 				5BE95E4F221BADE300241571 /* SplitViewController.swift */,
 				5BE95E52221BADE300241571 /* StackView.swift */,
@@ -232,6 +238,7 @@
 				5BE95E33221BA9B900241571 /* Sources */,
 				5BE95E34221BA9B900241571 /* Frameworks */,
 				5BE95E35221BA9B900241571 /* Resources */,
+				534A330AE664AC7E05573B64 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -304,6 +311,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		534A330AE664AC7E05573B64 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-CompositionsTests/Pods-CompositionsTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-CompositionsTests/Pods-CompositionsTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CompositionsTests/Pods-CompositionsTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		646957A4C191D425CCEEC293 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -391,6 +415,7 @@
 				D315AEBE223899DD00EB58CB /* Collection.swift in Sources */,
 				5BADE4A4221CD72F0024E1AD /* MKDirections.swift in Sources */,
 				5BE95E64221BADE300241571 /* Node.swift in Sources */,
+				D3285B3822F422FD00C516C6 /* Lens.swift in Sources */,
 				5BE95E59221BADE300241571 /* TabBarController.swift in Sources */,
 				5BE95E5D221BADE300241571 /* NavigationController.swift in Sources */,
 				5BE95E58221BADE300241571 /* Decodable.swift in Sources */,
@@ -404,6 +429,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5BE95E3C221BA9B900241571 /* CompositionsTests.swift in Sources */,
+				D3285B3A22F4231B00C516C6 /* LensTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
