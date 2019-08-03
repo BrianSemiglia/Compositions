@@ -161,7 +161,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     let cleanup = DisposeBag()
     let events = PublishSubject<Events.Model>()
-
+    var paged: Lens<[Person], Table<[Person]>>?
+    
     /*
 
      Event -> Data + Constraint -> Concretion -> Event
@@ -244,17 +245,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //            .bind(to: events)
 //            .disposed(by: cleanup)
 
-        let paged = PageViewController<Events.Model>.example()
-        paged.initial.frame = UIScreen.main.bounds
-        window?.rootViewController?.view.addSubview(paged.initial)
-        paged
-            .subsequent
-            .flatMap { $0.1.debug() }
-            .subscribe(onNext: {
-                self.events.on(.next($0))
-            })
-//            .bind(to: events)
-            .disposed(by: cleanup)
+//        let paged = PageViewController<Events.Model>.example()
+//        paged.initial.frame = UIScreen.main.bounds
+//        window?.rootViewController?.view.addSubview(paged.initial)
+//        paged
+//            .subsequent
+//            .flatMap { $0.1.debug() }
+//            .subscribe(onNext: {
+//                self.events.on(.next($0))
+//            })
+////            .bind(to: events)
+//            .disposed(by: cleanup)
+        
+        let paged = Table<[Person]>
+            .exampleLens()
+            .subscribingOn { s, v in
+                v.rx
+                 .willMoveToSuperview
+                 .filter { $0 }
+                 .take(1)
+                 .map { _ in }
+            }
+        paged.receiver.frame = UIScreen.main.bounds
+        window?.rootViewController?.view.addSubview(paged.receiver)
+        self.paged = paged
+ 
 //
 //                    .zipped {
 //                        /* instead of Async<[View]>, try concatenating each with a vertically stacked orientation to build up a table view. Allows nodes.reduce(.empty, zip). */
