@@ -17,6 +17,8 @@ target 'Compositions' do
     # Pods for testing
     pod 'RxBlocking'
     pod 'RxTest'
+    pod 'RxExpect'
+    pod 'SnapshotTesting'
   end
 
 end

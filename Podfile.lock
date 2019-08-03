@@ -12,6 +12,10 @@ PODS:
   - RxCocoa (5.0.0):
     - RxRelay (~> 5)
     - RxSwift (~> 5)
+  - RxExpect (2.0.0):
+    - RxCocoa (~> 5.0)
+    - RxSwift (~> 5.0)
+    - RxTest (~> 5.0)
   - RxGesture (3.0.0):
     - RxCocoa (~> 5.0)
     - RxSwift (~> 5.0)
@@ -20,15 +24,18 @@ PODS:
   - RxSwift (5.0.0)
   - RxTest (5.0.0):
     - RxSwift (~> 5)
+  - SnapshotTesting (1.5.0)
 
 DEPENDENCIES:
   - RxAlamofire
   - RxBlocking
   - RxCallbacks
   - RxCocoa
+  - RxExpect
   - RxGesture
   - RxSwift
   - RxTest
+  - SnapshotTesting
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -37,10 +44,12 @@ SPEC REPOS:
     - RxBlocking
     - RxCallbacks
     - RxCocoa
+    - RxExpect
     - RxGesture
     - RxRelay
     - RxSwift
     - RxTest
+    - SnapshotTesting
 
 SPEC CHECKSUMS:
   Alamofire: ae5c501addb7afdbb13687d7f2f722c78734c2d3
@@ -48,11 +57,13 @@ SPEC CHECKSUMS:
   RxBlocking: c67185d26498ea3cbe3e121917c3c16739e43123
   RxCallbacks: 3e08b3ed7bf2f6290b7aec7c3a614d0819d9abc2
   RxCocoa: fcf32050ac00d801f34a7f71d5e8e7f23026dcd8
+  RxExpect: 0685c9003c6d38532d5b101367eaf86b3adda81a
   RxGesture: 0cd8e37ff9a266e1c31f46bcaed6de1c536bc81e
   RxRelay: 4f7409406a51a55cd88483f21ed898c234d60f18
   RxSwift: 8b0671caa829a763bbce7271095859121cbd895f
   RxTest: 4349afe98f564e0a9bc19063368904622d17d49a
+  SnapshotTesting: 9ca1d80f6322509a035856170c11d0571b1f7171
 
-PODFILE CHECKSUM: c302c0d8f5b74b9e0875993a31a62f4d9b86222b
+PODFILE CHECKSUM: 349f4c338a93b20821f5271ae9b19a719f18a1e8
 
 COCOAPODS: 1.7.3
