@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-final class Lens<State: Equatable, Receiver> {
+final class Lens<State: Equatable, Receiver: AnyObject> {
   
     var receiver: Receiver
     private let initial: State
@@ -64,8 +64,6 @@ final class Lens<State: Equatable, Receiver> {
     }
     
     func subscribed() -> Lens {
-        // need to be able to get subsets as needed
-        // table view only needs some of the data as views
         return subscribingOn { _, _ in .just(()) }
     }
     

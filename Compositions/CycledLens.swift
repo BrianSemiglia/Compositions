@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-final class CycledLens<State: Equatable, Receiver> {
+final class CycledLens<State: Equatable, Receiver: AnyObject> {
     
     private let publish = PublishSubject<State>()
     private let cleanup = DisposeBag()

@@ -160,17 +160,16 @@ class LensTests: XCTestCase {
 
     func testMapRightMultipleStates() throws {
         let x = Lens(
-            receiver: UIView(),
-            initial: 1,
-            incoming: .from([2, 3])
+            receiver: UITextField(),
+            initial: "1",
+            incoming: Observable.from(["2", "3"])
         )
-        .mapRight { s, v in s }
-        .mapRight { s, v in s }
+        .mapLeft { s, v in v.text = String(s); return v }
         .subscribed()
-
+                
         XCTAssertEqual(
-            try x.outgoing.debug().toBlocking().toArray(),
-            [1, 1, 2, 2, 3, 3]
+            x.receiver.text,
+            "3"
         )
     }
 
@@ -203,7 +202,7 @@ class LensTests: XCTestCase {
         )
     }
 
-    func testRecursiveUniqueLeftRight() throws {
+    func testRecursive() throws {
         let x = CycledLens(
             lens: { source in
                 Lens(
@@ -232,7 +231,7 @@ class LensTests: XCTestCase {
         )
     }
     
-    func testStates() throws {
+    func testRecursiveMultipleMapRight() throws {
         let x = CycledLens(
             lens: { source in
                 Lens(
@@ -263,7 +262,13 @@ class LensTests: XCTestCase {
         )
         
         XCTAssertEqual(
-            try x.receiver.rx.observe(String.self, "text").take(7).toBlocking().toArray(),
+            try x
+                .receiver
+                .rx
+                .observe(String.self, "text")
+                .take(7)
+                .toBlocking()
+                .toArray(),
             ["1", "12", "13", "122", "123", "132", "133"]
         )
     }
