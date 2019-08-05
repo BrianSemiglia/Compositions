@@ -10,8 +10,8 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class Lens<State: Equatable, Receiver> {
-    
+final class Lens<State: Equatable, Receiver> {
+  
     var receiver: Receiver
     private let initial: State
     private let incoming: Observable<State>
@@ -26,7 +26,9 @@ class Lens<State: Equatable, Receiver> {
     ) {
         self.receiver = receiver
         self.initial = initial
-        self.incoming = Observable.merge(.just(initial), incoming).distinctUntilChanged()
+        self.incoming = Observable
+            .merge(.just(initial), incoming)
+            .distinctUntilChanged()
         self._outgoing = []
         self.left = { _, x in x }
     }
@@ -35,10 +37,10 @@ class Lens<State: Equatable, Receiver> {
         receiver: Receiver,
         initial: State,
         incoming: Observable<State>,
-        outgoing: [Observable<State>] = [],
-        left: @escaping ((State, Receiver) -> Receiver) = { _, x in x }
+        outgoing: [Observable<State>],
+        left: @escaping ((State, Receiver) -> Receiver)
     ) {
-        self.receiver = left(initial, receiver)
+        self.receiver = receiver
         self.initial = initial
         self.incoming = incoming
         self._outgoing = outgoing
@@ -71,15 +73,15 @@ class Lens<State: Equatable, Receiver> {
         return .merge(_outgoing)
     }
 
-    func mapLeft<NewReceiver>(_ f: @escaping (State, Receiver) -> NewReceiver) -> Lens<State, NewReceiver> {
+    func mapLeft(_ f: @escaping (State, Receiver) -> Receiver) -> Lens<State, Receiver> {
         let receiver = self.receiver
         let left = self.left
-        return Lens<State, NewReceiver>(
-            receiver: f(initial, receiver),
+        return Lens<State, Receiver>(
+            receiver: receiver,
             initial: initial,
             incoming: incoming,
             outgoing: _outgoing,
-            left: { state, _ in f(state, left(state, receiver)) }
+            left: { s, _ in f(s, left(s, receiver)) }
         )
     }
 
@@ -95,34 +97,13 @@ class Lens<State: Equatable, Receiver> {
         )
     }
     
-    func mapRight(_ f: @escaping (State, Receiver) -> Observable<State>) -> Lens<State, Receiver> {
-        let receiver = self.receiver
+    func mapRight(_ f: @escaping (Observable<State>, Receiver) -> Observable<State>) -> Lens<State, Receiver> {
         return Lens<State, Receiver>(
             receiver: receiver,
             initial: initial,
             incoming: incoming,
-            outgoing: _outgoing + [incoming.flatMapLatest { f($0, receiver) }],
+            outgoing: _outgoing + [f(incoming, receiver)],
             left: left
-        )
-    }
-
-    func reinjectingOutgoingState() -> Lens<State, Receiver> {
-        return Lens(
-            receiver: receiver,
-            initial: initial,
-            incoming: outgoing,
-            left: left
-        )
-    }
-}
-
-public extension Reactive where Base: UIView {
-    var willMoveToSuperview: ControlEvent<Bool> {
-        return ControlEvent(
-            events: methodInvoked(#selector(UIView.willMove(toSuperview:)))
-                .map { $0.first }
-                .map { $0 as? UIView? }
-                .map { $0 != nil }
         )
     }
 }

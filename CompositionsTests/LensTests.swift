@@ -136,93 +136,135 @@ class LensTests: XCTestCase {
         )
         .subscribed()
 
-        XCTAssertEqual(try x.outgoing.take(0).toBlocking().toArray(), [])
-    }
-    
-    func testMapRightJust() throws {
-        let x = Lens(
-            receiver: UIView(),
-            initial: 1,
-            incoming: .empty()
+        XCTAssertEqual(
+            try x.outgoing.take(0).toBlocking().toArray(),
+            []
         )
-        .mapRight { state, view in Observable.just(2) }
-        .subscribed()
-
-        XCTAssertEqual(try x.outgoing.first().toBlocking().toArray(), [2])
     }
-    
+
     func testMapRightMultipleMap() throws {
         let x = Lens(
             receiver: UIView(),
             initial: 1,
             incoming: .empty()
         )
-        .mapRight { s, v in Observable.from([3]) } //.concat(Observable.empty()) }
-        .mapRight { s, v in Observable.from([4]) }
+        .mapRight { s, v in .from([3]) }
+        .mapRight { s, v in .from([4]) }
         .subscribed()
 
         XCTAssertEqual(
-            try x.outgoing.take(2).toBlocking().toArray().sorted(),
+            try x.outgoing.take(2).toBlocking().toArray(),
             [3, 4]
         )
     }
-    
+
     func testMapRightMultipleStates() throws {
         let x = Lens(
             receiver: UIView(),
             initial: 1,
             incoming: .from([2, 3])
         )
-        .mapRight { s, v in .just(s) }
-        .mapRight { s, v in .just(s) }
+        .mapRight { s, v in s }
+        .mapRight { s, v in s }
         .subscribed()
-        
+
         XCTAssertEqual(
-            try x.outgoing.debug().take(999).toBlocking().toArray().sorted(),
+            try x.outgoing.debug().toBlocking().toArray(),
             [1, 1, 2, 2, 3, 3]
         )
     }
 
-    func testMapRightMultipleStatesReplacingOutgoingOnIncoming() throws {
-        // Replace output observables when new state is input
-        let x = Lens(
-            receiver: UIView(),
-            initial: 1,
-            incoming: .from([2, 3])
+    func testRecursiveUnique() throws {
+        let x = CycledLens(
+            lens: { source in
+                Lens(
+                    receiver: UILabel(),
+                    initial: 1,
+                    incoming: source
+                )
+                .mapLeft { s, v -> UILabel in
+                    v.text = String(s)
+                    return v
+                }
+                .mapRight { s, v in .just(1) }
+                .subscribed()
+            }
         )
-        .mapRight { s, v in Observable.just(s).delay(.seconds(1), scheduler: MainScheduler()) }
-        .mapRight { s, v in Observable.just(s).delay(.seconds(1), scheduler: MainScheduler()) }
-        .subscribed()
         
         XCTAssertEqual(
-            try x.outgoing.debug().take(999).toBlocking().toArray().sorted(),
-            [3, 3]
+            try x
+                .receiver
+                .rx
+                .observe(String.self, "text")
+                .take(1)
+                .toBlocking()
+                .toArray(),
+            ["1"]
         )
     }
 
-    func testRecursiveUnique() throws {
-        let x = Lens(
-            receiver: UILabel(),
-            initial: 1,
-            incoming: .from([2, 3])
+    func testRecursiveUniqueLeftRight() throws {
+        let x = CycledLens(
+            lens: { source in
+                Lens(
+                    receiver: UILabel(),
+                    initial: 1,
+                    incoming: source
+                )
+                .mapLeft { s, v -> UILabel in
+                    v.text = String(s)
+                    return v
+                }
+                .mapRight { s, v in .just(4) }
+                .subscribed()
+            }
         )
-        .mapRight { s, v in
-            .just(4)
-        }
-        .mapLeft { s, v -> UILabel in
-            v.text = String(s)
-            return v
-        }
-        .reinjectingOutgoingState()
-        .subscribed()
 
         XCTAssertEqual(
-            try x.outgoing.take(999).toBlocking().toArray().sorted(),
-            []
+            try x
+                .receiver
+                .rx
+                .observe(String.self, "text")
+                .take(2)
+                .toBlocking()
+                .toArray(),
+            ["1", "4"]
         )
+    }
+    
+    func testStates() throws {
+        let x = CycledLens(
+            lens: { source in
+                Lens(
+                    receiver: UILabel(),
+                    initial: "1",
+                    incoming: source
+                )
+                .mapLeft { s, v -> UILabel in
+                    v.text = s
+                    return v
+                }
+                .mapRight { s, v in
+                    s.flatMap {
+                        $0.count > 2
+                            ? Observable.empty()
+                            : Observable.just($0 + "2")
+                    }
+                }
+                .mapRight { s, v in
+                    s.flatMap {
+                        $0.count > 2
+                            ? Observable.empty()
+                            : Observable.just($0 + "3")
+                    }
+                }
+                .subscribed()
+            }
+        )
+        
         XCTAssertEqual(
-            x.receiver.text,
-            "4"
+            try x.receiver.rx.observe(String.self, "text").take(7).toBlocking().toArray(),
+            ["1", "12", "13", "122", "123", "132", "133"]
         )
     }
     
@@ -271,7 +313,7 @@ class LensTests: XCTestCase {
         
         XCTAssertEqual(
             x.receiver.text,
-            "1"
+            nil
         )
     }
     
