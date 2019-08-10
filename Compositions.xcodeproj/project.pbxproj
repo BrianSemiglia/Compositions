@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		27936D0C07A918AB204DB773 /* Pods_Compositions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 367DD31E85780B03BAF0CB0C /* Pods_Compositions.framework */; };
+		5B073A0522FD382000F5EE84 /* Lens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0422FD382000F5EE84 /* Lens.swift */; };
+		5B073A0B22FF6C1E00F5EE84 /* Cycled+Example.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0A22FF6C1E00F5EE84 /* Cycled+Example.swift */; };
 		5B364CB4221E42C700023851 /* DatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B364CB3221E42C700023851 /* DatePicker.swift */; };
 		5BADE4A2221C93180024E1AD /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADE4A1221C93180024E1AD /* MapView.swift */; };
 		5BADE4A4221CD72F0024E1AD /* MKDirections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADE4A3221CD72F0024E1AD /* MKDirections.swift */; };
@@ -37,9 +39,7 @@
 		D315AEBC22374DEE00EB58CB /* Enum.swift in Sources */ = {isa = PBXBuildFile; fileRef = D315AEBB22374DEE00EB58CB /* Enum.swift */; };
 		D315AEBE223899DD00EB58CB /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D315AEBD223899DD00EB58CB /* Collection.swift */; };
 		D31DC608223D67580084B374 /* AsyncNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31DC607223D67580084B374 /* AsyncNode.swift */; };
-		D3267D5422F7B21200895AA6 /* CycledLens.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3267D5322F7B21200895AA6 /* CycledLens.swift */; };
 		D3267D5622F7B27A00895AA6 /* UIView+Reactive.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3267D5522F7B27A00895AA6 /* UIView+Reactive.swift */; };
-		D3285B3822F422FD00C516C6 /* Lens.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3285B3722F422FD00C516C6 /* Lens.swift */; };
 		D3285B3A22F4231B00C516C6 /* LensTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3285B3922F4231B00C516C6 /* LensTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +57,8 @@
 		15D8B89F1254D669A8CB67A0 /* Pods-CompositionsTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CompositionsTests.debug.xcconfig"; path = "Target Support Files/Pods-CompositionsTests/Pods-CompositionsTests.debug.xcconfig"; sourceTree = "<group>"; };
 		367DD31E85780B03BAF0CB0C /* Pods_Compositions.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Compositions.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		40DE90307FB7A9320B791553 /* Pods_CompositionsTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CompositionsTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B073A0422FD382000F5EE84 /* Lens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lens.swift; sourceTree = "<group>"; };
+		5B073A0A22FF6C1E00F5EE84 /* Cycled+Example.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Cycled+Example.swift"; sourceTree = "<group>"; };
 		5B364CB3221E42C700023851 /* DatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePicker.swift; sourceTree = "<group>"; };
 		5BADE4A1221C93180024E1AD /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		5BADE4A3221CD72F0024E1AD /* MKDirections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MKDirections.swift; sourceTree = "<group>"; };
@@ -91,9 +93,7 @@
 		D315AEBB22374DEE00EB58CB /* Enum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enum.swift; sourceTree = "<group>"; };
 		D315AEBD223899DD00EB58CB /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		D31DC607223D67580084B374 /* AsyncNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncNode.swift; sourceTree = "<group>"; };
-		D3267D5322F7B21200895AA6 /* CycledLens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycledLens.swift; sourceTree = "<group>"; };
 		D3267D5522F7B27A00895AA6 /* UIView+Reactive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Reactive.swift"; sourceTree = "<group>"; };
-		D3285B3722F422FD00C516C6 /* Lens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lens.swift; sourceTree = "<group>"; };
 		D3285B3922F4231B00C516C6 /* LensTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LensTests.swift; sourceTree = "<group>"; };
 		F755B33993CF092F339F3B2A /* Pods-CompositionsTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CompositionsTests.release.xcconfig"; path = "Target Support Files/Pods-CompositionsTests/Pods-CompositionsTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -152,6 +152,7 @@
 			isa = PBXGroup;
 			children = (
 				5BE95E26221BA9B700241571 /* AppDelegate.swift */,
+				5B073A0A22FF6C1E00F5EE84 /* Cycled+Example.swift */,
 				5BE95E28221BA9B700241571 /* ViewController.swift */,
 				5BE95E2A221BA9B700241571 /* Main.storyboard */,
 				5BE95E2D221BA9B800241571 /* Assets.xcassets */,
@@ -183,8 +184,7 @@
 				5BADE4A3221CD72F0024E1AD /* MKDirections.swift */,
 				5BE95E4E221BADE300241571 /* NavigationController.swift */,
 				5BE95E55221BADE300241571 /* Node.swift */,
-				D3285B3722F422FD00C516C6 /* Lens.swift */,
-				D3267D5322F7B21200895AA6 /* CycledLens.swift */,
+				5B073A0422FD382000F5EE84 /* Lens.swift */,
 				D3267D5522F7B27A00895AA6 /* UIView+Reactive.swift */,
 				5BE95E53221BADE300241571 /* PageViewController.swift */,
 				5BE95E4F221BADE300241571 /* SplitViewController.swift */,
@@ -409,7 +409,6 @@
 				5BADE4A8221CD8DF0024E1AD /* Layer.swift in Sources */,
 				5BE95E57221BADE300241571 /* AttributedString.swift in Sources */,
 				D31DC608223D67580084B374 /* AsyncNode.swift in Sources */,
-				D3267D5422F7B21200895AA6 /* CycledLens.swift in Sources */,
 				5BE95E5E221BADE300241571 /* SplitViewController.swift in Sources */,
 				5BE95E5A221BADE300241571 /* AlertViewController.swift in Sources */,
 				D315AEBC22374DEE00EB58CB /* Enum.swift in Sources */,
@@ -421,9 +420,10 @@
 				5BE95E5C221BADE300241571 /* Label.swift in Sources */,
 				5BE95E27221BA9B700241571 /* AppDelegate.swift in Sources */,
 				D315AEBE223899DD00EB58CB /* Collection.swift in Sources */,
+				5B073A0B22FF6C1E00F5EE84 /* Cycled+Example.swift in Sources */,
 				5BADE4A4221CD72F0024E1AD /* MKDirections.swift in Sources */,
 				5BE95E64221BADE300241571 /* Node.swift in Sources */,
-				D3285B3822F422FD00C516C6 /* Lens.swift in Sources */,
+				5B073A0522FD382000F5EE84 /* Lens.swift in Sources */,
 				5BE95E59221BADE300241571 /* TabBarController.swift in Sources */,
 				5BE95E5D221BADE300241571 /* NavigationController.swift in Sources */,
 				5BE95E58221BADE300241571 /* Decodable.swift in Sources */,

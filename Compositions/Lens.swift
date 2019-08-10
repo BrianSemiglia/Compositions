@@ -7,101 +7,166 @@
 //
 
 import Foundation
+
+struct Lens<A, B> {
+    let get: (A) -> B
+    let set: (B, A) -> [A]
+    init(get: @escaping (A) -> B, set: @escaping (B, A) -> [A] = { _, _ in [] }) {
+        self.get = get
+        self.set = set
+    }
+}
+
+extension Lens {
+
+    static func zip<B1, B2>(
+        _ a: Lens<A, B1>,
+        _ b: Lens<A, B2>
+    ) -> Lens<A, (B1, B2)> where B == (B1, B2) { return
+        Lens<A, (B1, B2)>(
+            get: {(
+                a.get($0),
+                b.get($0)
+            )},
+            set: { parts, whole in
+                a.set(parts.0, whole) +
+                b.set(parts.1, whole)
+            }
+        )
+    }
+
+    static func zip<B1, B2, B3>(
+        _ a: Lens<A, B1>,
+        _ b: Lens<A, B2>,
+        _ c: Lens<A, B3>
+    ) -> Lens<A, (B1, B2, B3)> where B == (B1, B2, B3) { return
+        Lens<A, (B1, B2, B3)>(
+            get: { (
+                a.get($0),
+                b.get($0),
+                c.get($0)
+            ) },
+            set: { parts, whole in
+                a.set(parts.0, whole) +
+                b.set(parts.1, whole) +
+                c.set(parts.2, whole)
+            }
+        )
+    }
+
+    static func zip<B1, B2, B3, B4>(
+        _ a: Lens<A, B1>,
+        _ b: Lens<A, B2>,
+        _ c: Lens<A, B3>,
+        _ d: Lens<A, B4>
+    ) -> Lens<A, (B1, B2, B3, B4)> where B == (B1, B2, B3, B4) { return
+        Lens<A, (B1, B2, B3, B4)>(
+            get: { (
+                a.get($0),
+                b.get($0),
+                c.get($0),
+                d.get($0)
+            ) },
+            set: { parts, whole in
+                a.set(parts.0, whole) +
+                b.set(parts.1, whole) +
+                c.set(parts.2, whole) +
+                d.set(parts.3, whole)
+            }
+        )
+    }
+
+    static func zip<B1, B2, B3, B4, B5>(
+        _ a: Lens<A, B1>,
+        _ b: Lens<A, B2>,
+        _ c: Lens<A, B3>,
+        _ d: Lens<A, B4>,
+        _ e: Lens<A, B5>
+    ) -> Lens<A, (B1, B2, B3, B4, B5)> where B == (B1, B2, B3, B4, B5) { return
+        Lens<A, (B1, B2, B3, B4, B5)>(
+            get: { (
+                a.get($0),
+                b.get($0),
+                c.get($0),
+                d.get($0),
+                e.get($0)
+            ) },
+            set: { parts, whole in
+                a.set(parts.0, whole) +
+                b.set(parts.1, whole) +
+                c.set(parts.2, whole) +
+                d.set(parts.3, whole) +
+                e.set(parts.4, whole)
+            }
+        )
+    }
+
+    static func map<A, B, C>(_ lens: Lens<A, B>, _ f: @escaping (A, B) -> C) -> Lens<A, C> { return
+        Lens<A, C>(
+            get: { s in f(s, lens.get(s)) },
+            set: { part, whole in lens.set(lens.get(whole), whole) }
+        )
+    }
+
+    func map<C>(_ f: @escaping (A, B) -> C) -> Lens<A, C> { return
+        Lens.map(self, f)
+    }
+
+    func prefixed(with prefix: A) -> Lens<A, B> { return
+        Lens(
+            get: get,
+            set: { b, a in [prefix] + self.set(b, a) }
+        )
+    }
+}
+
+extension Lens where A == Observable<String> {
+    func cycled() -> Lens<A, B> {
+        let shared = PublishSubject<A.Element>().asObservable().share()
+        return Lens<A, B>(
+            get: { _ in self.get(shared) },
+            set: { r, _ in self.set(r, shared) }
+        )
+        // 1. caller still has to subscribe
+        // 2. violates contract if further maps aren't passed result?
+    }
+}
+
 import RxSwift
-import RxCocoa
 
-final class Lens<State: Equatable, Receiver: AnyObject> {
-  
-    var receiver: Receiver
-    private let initial: State
-    private let incoming: Observable<State>
-    private let _outgoing: [Observable<State>]
-    let left: (State, Receiver) -> Receiver
+struct Cycled<Receiver, Value> {
+    let receiver: Receiver
+    private let producer = PublishSubject<Value>()
     private let cleanup = DisposeBag()
-    
-    init( // head
-        receiver: Receiver,
-        initial: State,
-        incoming: Observable<State>
-    ) {
-        self.receiver = receiver
-        self.initial = initial
-        self.incoming = Observable
-            .merge(.just(initial), incoming)
-            .distinctUntilChanged()
-        self._outgoing = []
-        self.left = { _, x in x }
-    }
-    
-    private init( // tail
-        receiver: Receiver,
-        initial: State,
-        incoming: Observable<State>,
-        outgoing: [Observable<State>],
-        left: @escaping ((State, Receiver) -> Receiver)
-    ) {
-        self.receiver = receiver
-        self.initial = initial
-        self.incoming = incoming
-        self._outgoing = outgoing
-        self.left = left
-    }
-    
-    func subscribingOn(_ trigger: (State, Receiver) -> Observable<Void>) -> Lens {
-        let incoming = self.incoming
-        trigger(initial, receiver)
-            .flatMap { incoming }
-            .subscribe(onNext: { [weak self] in
-                if let `self` = self {
-                    self.receiver = self.left(
-                        $0,
-                        self.receiver
-                    )
-                }
-            })
+    init(lens: Lens<Observable<Value>, Receiver>) {
+        let shared = producer.asObservable().share()
+        receiver = lens.get(shared)
+        Observable
+            .merge(
+                lens
+                    .set(receiver, shared)
+                    .reduce([]) { $0 + [$1] }
+            )
+            .debug()
+            .observeOn(MainScheduler.asyncInstance)
+            .concat(Observable.never())
+            .bind(to: producer)
             .disposed(by: cleanup)
+    }
+}
+
+protocol Consumer {}
+extension NSObject: Consumer {}
+private var AssociatedObjectHandle: UInt8 = 0
+
+extension Consumer where Self: AnyObject {
+    func rendering<T>(_ o: Observable<T>, f: @escaping (Self, T) -> Void) -> Self  {
+        objc_setAssociatedObject(
+            self,
+            &AssociatedObjectHandle,
+            o.subscribe(onNext: { f(self, $0) }),
+            objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC
+        )
         return self
-    }
-    
-    func subscribed() -> Lens {
-        return subscribingOn { _, _ in .just(()) }
-    }
-    
-    var outgoing: Observable<State> {
-        return .merge(_outgoing)
-    }
-
-    func mapLeft(_ f: @escaping (State, Receiver) -> Receiver) -> Lens<State, Receiver> {
-        let receiver = self.receiver
-        let left = self.left
-        return Lens<State, Receiver>(
-            receiver: receiver,
-            initial: initial,
-            incoming: incoming,
-            outgoing: _outgoing,
-            left: { s, _ in f(s, left(s, receiver)) }
-        )
-    }
-
-    func mapLeft<NewReceiver>(_ v: NewReceiver, _ f: @escaping (State, Receiver, NewReceiver) -> NewReceiver) -> Lens<State, NewReceiver> {
-        let receiver = self.receiver
-        let left = self.left
-        return Lens<State, NewReceiver>(
-            receiver: v,
-            initial: initial,
-            incoming: incoming,
-            outgoing: _outgoing,
-            left: { state, _ in f(state, left(state, receiver), v) }
-        )
-    }
-    
-    func mapRight(_ f: @escaping (Observable<State>, Receiver) -> Observable<State>) -> Lens<State, Receiver> {
-        return Lens<State, Receiver>(
-            receiver: receiver,
-            initial: initial,
-            incoming: incoming,
-            outgoing: _outgoing + [f(incoming, receiver)],
-            left: left
-        )
     }
 }

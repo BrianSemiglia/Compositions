@@ -17,68 +17,51 @@ import RxCocoa
 @testable import Compositions
 
 class LensTests: XCTestCase {
-    
-    func testViewIdentity() throws {
-        let view = UIView()
-        let x = Lens(
-            receiver: view,
-            initial: 1,
-            incoming: .empty()
+
+    func testLenzMapLeft() throws {
+        let x = Lens<Observable<Int>, UILabel>(
+            get: { a in
+                UILabel().rendering(a) { v, s in
+                    v.text = String(s)
+                    v.backgroundColor = .red
+                    v.sizeToFit()
+                }
+            }
         )
-        .subscribed()
-
-        XCTAssertEqual(x.receiver, view)
-    }
-
-    func testMapLeft() throws {
-        let x = Lens(
-            receiver: UILabel(),
-            initial: 1,
-            incoming: .empty()
-        )
-        .mapLeft { s, v -> UILabel in
-            v.text = String(s)
-            v.backgroundColor = .red
-            v.sizeToFit()
-            return v
-        }
-        .subscribed()
-
         assertSnapshot(
-            matching: x.receiver,
+            matching: x.get(.just(1)),
             as: .image
         )
     }
 
-    func testMapLeftMultipleStates() throws {
-        let x = Lens(
-            receiver: UILabel(),
-            initial: 1,
-            incoming: .just(2)
+    func testLenzMapLeftMultipleStates() throws {
+        let x = Lens<Observable<Int>, UILabel>(
+            get: { a in
+                UILabel().rendering(a) { v, s in
+                    v.text = String(s)
+                    v.backgroundColor = .red
+                    v.sizeToFit()
+                }
+            }
         )
-        .mapLeft { s, v -> UILabel in
-            v.text = String(s)
-            v.backgroundColor = .red
-            v.sizeToFit()
-            return v
-        }
-        .subscribed()
-
         assertSnapshot(
-            matching: x.receiver,
+            matching: x.get(.from([1, 2])),
             as: .image
         )
     }
 
     func testMapLeftAppending() throws {
-        let x = Lens(
-            receiver: UILabel(),
-            initial: 1,
-            incoming: .empty()
+        let x = Lens<Observable<Int>, UILabel>(
+            get: { a -> UILabel in
+                UILabel().rendering(a) { v, s -> Void in
+                    v.text = String(s)
+                    v.backgroundColor = .red
+                    v.sizeToFit()
+                }
+            }
         )
-        .mapLeft(UIView()) { s, v1, v2 -> UIView in
-            v1.text = String(s)
-            v1.sizeToFit()
+        .map { s, v1 -> UIView in
+            let v2 = UIView()
             v2.frame = CGRect(
                 origin: .zero,
                 size: CGSize(
@@ -91,23 +74,25 @@ class LensTests: XCTestCase {
             v2.addSubview(v1)
             return v2
         }
-        .subscribed()
 
         assertSnapshot(
-            matching: x.receiver,
+            matching: x.get(.just(1)),
             as: .image
         )
     }
 
     func testMapLeftMultipleStatesAppending() throws {
-        let x = Lens(
-            receiver: UILabel(),
-            initial: 1,
-            incoming: .from([2, 3])
+        let x = Lens<Observable<Int>, UILabel>(
+            get: { s -> UILabel in
+                UILabel().rendering(s) { v, s -> Void in
+                    v.text = String(s)
+                    v.backgroundColor = .red
+                    v.sizeToFit()
+                }
+            }
         )
-        .mapLeft(UIView()) { s, v1, v2 -> UIView in
-            v1.text = String(s)
-            v1.sizeToFit()
+        .map { s, v1 -> UIView in
+            let v2 = UIView()
             v2.frame = CGRect(
                 origin: .zero,
                 size: CGSize(
@@ -120,104 +105,165 @@ class LensTests: XCTestCase {
             v2.addSubview(v1)
             return v2
         }
-        .subscribed()
+        .prefixed(with: .just(2))
 
         assertSnapshot(
-            matching: x.receiver,
+            matching: x.get(.just(3)),
             as: .image
-        )
-    }
-    
-    func testStateOutgoingNever() throws {
-        let x = Lens(
-            receiver: UIView(),
-            initial: 1,
-            incoming: .empty()
-        )
-        .subscribed()
-
-        XCTAssertEqual(
-            try x.outgoing.take(0).toBlocking().toArray(),
-            []
         )
     }
 
     func testMapRightMultipleMap() throws {
-        let x = Lens(
-            receiver: UIView(),
-            initial: 1,
-            incoming: .empty()
+        let x = Lens<Observable<Int>, UIView>(
+            get: { s in UIView() },
+            set: { v, s in [.from([3, 4])] }
         )
-        .mapRight { s, v in .from([3]) }
-        .mapRight { s, v in .from([4]) }
-        .subscribed()
+        .prefixed(with: .just(1))
 
         XCTAssertEqual(
-            try x.outgoing.take(2).toBlocking().toArray(),
-            [3, 4]
+            try Observable.merge(
+                x.set(
+                    UIView(),
+                    Observable.empty()
+                )
+            )
+            .take(3)
+            .toBlocking()
+            .toArray(),
+            [1, 3, 4]
         )
     }
 
     func testMapRightMultipleStates() throws {
-        let x = Lens(
-            receiver: UITextField(),
-            initial: "1",
-            incoming: Observable.from(["2", "3"])
+        let x = Lens<Observable<Int>, UITextField>(
+            get: { s in UITextField().rendering(s) { v, s in v.text = String(s) } },
+            set: { v, s in [] }
         )
-        .mapLeft { s, v in v.text = String(s); return v }
-        .subscribed()
-                
+
         XCTAssertEqual(
-            x.receiver.text,
+            x.get(.from([2, 3])).text,
             "3"
         )
     }
 
     func testRecursiveUnique() throws {
-        let x = CycledLens(
-            lens: { source in
-                Lens(
-                    receiver: UILabel(),
-                    initial: 1,
-                    incoming: source
-                )
-                .mapLeft { s, v -> UILabel in
-                    v.text = String(s)
-                    return v
-                }
-                .mapRight { s, v in .just(1) }
-                .subscribed()
-            }
+        let x = Cycled(
+            lens: Lens(
+                get: { s in UILabel().rendering(s) { v, s in v.text = String(s) } },
+                set: { s, v in [Observable.just(1)] }
+            )
+            .prefixed(with: .just(1))
         )
-        
+
         XCTAssertEqual(
             try x
                 .receiver
                 .rx
                 .observe(String.self, "text")
-                .take(1)
-                .toBlocking()
+                .take(2)
+                .toBlocking(timeout: 0.1)
                 .toArray(),
-            ["1"]
+            [nil, "1"]
+        )
+
+        XCTAssertThrowsError(
+            try x
+                .receiver
+                .rx
+                .observe(String.self, "text")
+                .take(3)
+                .toBlocking(timeout: 0.1)
+                .toArray()
         )
     }
 
     func testRecursive() throws {
-        let x = CycledLens(
-            lens: { source in
-                Lens(
-                    receiver: UILabel(),
-                    initial: 1,
-                    incoming: source
-                )
-                .mapLeft { s, v -> UILabel in
-                    v.text = String(s)
-                    return v
-                }
-                .mapRight { s, v in .just(4) }
-                .subscribed()
-            }
+        let x = Cycled(
+            lens: Lens<Observable<String>, UILabel>(
+                get: { s in UILabel().rendering(s) { l, v in l.text = v } },
+                set: { l, s in [Observable.just("4")] }
+            )
+            .prefixed(with: .just("1"))
         )
+
+        XCTAssertEqual(
+            try x
+                .receiver
+                .rx
+                .observe(String.self, "text")
+                .take(3)
+                .toBlocking(timeout: 1)
+                .toArray(),
+            [nil, "1", "4"]
+        )
+    }
+
+
+    func testCycledRecursive() throws {
+        let x = Cycled(
+            lens: Lens<Observable<String>, UILabel>(
+                get: { s in UILabel().rendering(s) { l, v in l.text = v } },
+                set: { l, s in [Observable.from(["4", "5"])] }
+            )
+        )
+
+        XCTAssertEqual(
+            try x
+                .receiver
+                .rx
+                .observe(String.self, "text")
+                .debug()
+                .take(3)
+                .toBlocking(timeout: 1)
+                .toArray(),
+            [nil, "4", "5"]
+        )
+    }
+
+    func testRecursiveMultipleMapRight() throws {
+        let x = Cycled(
+            lens: Lens<Observable<String>, UILabel>(
+                get: { s in UILabel().rendering(s) { l, v in l.text = v } },
+                set: { l, s in [
+                    s.flatMap {
+                        $0.count > 2
+                            ? Observable.empty()
+                            : Observable.just($0 + "2")
+                    },
+                    s.flatMap {
+                        $0.count > 2
+                            ? Observable.empty()
+                            : Observable.just($0 + "3")
+                    }
+                ] }
+            )
+            .prefixed(with: .just("1"))
+        )
+
+        XCTAssertEqual(
+            try x
+                .receiver
+                .rx
+                .observe(String.self, "text")
+                .take(8)
+                .toBlocking()
+                .toArray(),
+            [nil, "1", "12", "13", "122", "123", "132", "133"]
+        )
+    }
+
+    func testSubscribingOn() {
+        let x = Cycled(
+            lens: Lens<Observable<String>, UILabel>(
+                get: { s in UILabel().rendering(s) { l, v in l.text = v } },
+                set: { l, s in [
+                    l.rx
+                        .willMoveToSuperview
+                        .flatMap { $0 ? Observable.just("3") : .never() }
+                ] }
+            )
+        )
+        x.receiver.willMove(toSuperview: UIView())
 
         XCTAssertEqual(
             try x
@@ -227,98 +273,7 @@ class LensTests: XCTestCase {
                 .take(2)
                 .toBlocking()
                 .toArray(),
-            ["1", "4"]
-        )
-    }
-    
-    func testRecursiveMultipleMapRight() throws {
-        let x = CycledLens(
-            lens: { source in
-                Lens(
-                    receiver: UILabel(),
-                    initial: "1",
-                    incoming: source
-                )
-                .mapLeft { s, v -> UILabel in
-                    v.text = s
-                    return v
-                }
-                .mapRight { s, v in
-                    s.flatMap {
-                        $0.count > 2
-                            ? Observable.empty()
-                            : Observable.just($0 + "2")
-                    }
-                }
-                .mapRight { s, v in
-                    s.flatMap {
-                        $0.count > 2
-                            ? Observable.empty()
-                            : Observable.just($0 + "3")
-                    }
-                }
-                .subscribed()
-            }
-        )
-        
-        XCTAssertEqual(
-            try x
-                .receiver
-                .rx
-                .observe(String.self, "text")
-                .take(7)
-                .toBlocking()
-                .toArray(),
-            ["1", "12", "13", "122", "123", "132", "133"]
-        )
-    }
-    
-    func testSubscribingOn() {
-        let x = Lens(
-            receiver: UILabel(),
-            initial: 1,
-            incoming: .just(3)
-        )
-        .mapLeft { s, v -> UILabel in v.text = String(s); return v; }
-        .subscribingOn { s, v in
-            v.rx
-             .willMoveToSuperview
-             .flatMap { $0 ? Observable.just(()) : Observable.never() }
-        }
-        x.receiver.willMove(toSuperview: UIView())
-        
-        XCTAssertEqual(
-            x.receiver.text,
-            "3"
-        )
-    }
-    
-    func testSubscribed() {
-        let x = Lens(
-            receiver: UILabel(),
-            initial: 1,
-            incoming: .just(3)
-        )
-        .mapLeft { s, v -> UILabel in v.text = String(s); return v; }
-        .subscribed()
-        
-        XCTAssertEqual(
-            x.receiver.text,
-            "3"
-        )
-    }
-    
-    func testWithoutSubscribingOn() {
-        let x = Lens(
-            receiver: UILabel(),
-            initial: 1,
-            incoming: .just(3)
-        )
-        .mapLeft { s, v -> UILabel in v.text = String(s); return v; }
-        
-        XCTAssertEqual(
-            x.receiver.text,
-            nil
+            [nil, "3"]
         )
     }
     
@@ -332,5 +287,37 @@ class LensTests: XCTestCase {
                 [true]
             )
         }
+    }
+
+    func testStartingWith() {
+        let x = Cycled(
+            lens: Lens<Observable<String>, UILabel>(
+                get: { s in UILabel().rendering(s) { l, v in l.text = v } },
+                set: { l, s in [] }
+            )
+            .prefixed(with: .just("99"))
+        )
+
+        XCTAssertEqual(
+            try x
+                .receiver
+                .rx
+                .observe(String.self, "text")
+                .take(2)
+                .toBlocking()
+                .toArray(),
+            [nil, "99"]
+        )
+    }
+
+    func testLenzZip() {
+        let a = Lens<String, Int>(get: { s in Int(s)! }, set: { i, s in ["\(i)"] })
+        XCTAssertEqual(a.get("1"), 1)
+        XCTAssertEqual(a.set(4, ""), ["4"])
+        let b = Lens<String, Int>(get: { s in Int(s)! * 2 }, set: { i, s in ["\(i * 2)"] })
+        let c = Lens.zip(a, b)
+        XCTAssertEqual(c.get("3").0, 3)
+        XCTAssertEqual(c.get("3").1, 6)
+        XCTAssertEqual(c.set((2, 5), ""), ["2", "10"])
     }
 }

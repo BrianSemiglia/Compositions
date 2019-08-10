@@ -16,35 +16,36 @@ enum ListDivision {
 
 extension Table {
 
-    static func exampleLens() -> Lens<[Person], Table> { return
-        Lens<[Person], Table>(
-            receiver: Table(cells: []),
-            initial: [],
-            incoming: .just(
-                [Person(
-                    firstName: "Foo",
-                    mugshot: URL(
-                        string: "https://s3.amazonaws.com/raizlabs-doorman/mugshots/IMG_1170_2.jpg")!,
-                    id: 99
-                )]
-                .flatMap { [$0, $0, $0, $0, $0, $0, $0, $0, $0] }
-            )
-        )
-        .mapLeft { state, view in
-            let cell = UIView()
-            cell.backgroundColor = .blue
-            cell.frame = .init(origin: .zero, size: .init(width: 50, height: 400))
-            view.cells = state.map { person in
-                AsyncNode(
-                    initial: cell,
-                    subsequent: (person.mugshot / UIImage.self)
-                        .observeOn(MainScheduler())
-                        .map { let x = UIImageView(image: $0); x.sizeToFit(); return x; }
-                        .map { ($0, .never()) }
+    static func exampleLens() -> Lens<Observable<[Person]>, Table<Person>> { return
+        Lens<Observable<[Person]>, Table<Person>>.init(
+            get: { s in
+                Table<Person>(cells: []).rendering(s) { view, state in
+                    let cell = UIView()
+                    cell.backgroundColor = .blue
+                    cell.frame = .init(origin: .zero, size: .init(width: 50, height: 400))
+                    view.cells = state.map { person in
+                        AsyncNode(
+                            initial: cell,
+                            subsequent: (person.mugshot / UIImage.self)
+                                .observeOn(MainScheduler())
+                                .map { let x = UIImageView(image: $0); x.sizeToFit(); return x; }
+                                .map { ($0, .never()) }
+                        )
+                    }
+                }
+            },
+            set: { v, s in [
+                Observable<[Person]>.just(
+                    [Person(
+                        firstName: "Foo",
+                        mugshot: URL(
+                            string: "https://s3.amazonaws.com/raizlabs-doorman/mugshots/IMG_1170_2.jpg")!,
+                        id: 99
+                    )]
+                    .flatMap { Array(repeating: $0, count: 10) }
                 )
-            }
-            return view
-        }
+            ] }
+        )
     }
 
     static func example() -> AsyncNode<Table<Events.Model>, Table<Events.Model>.Event> {

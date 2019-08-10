@@ -161,8 +161,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     let cleanup = DisposeBag()
     let events = PublishSubject<Events.Model>()
-    var paged: Lens<[Person], Table<[Person]>>?
-    
+    var sample: Cycled<(UIView, Void), String>?
+    var paged: Cycled<Table<Person>, [Person]>?
+
     /*
 
      Event -> Data + Constraint -> Concretion -> Event
@@ -256,20 +257,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //            })
 ////            .bind(to: events)
 //            .disposed(by: cleanup)
-        
-        let paged = Table<[Person]>
-            .exampleLens()
-            .subscribingOn { s, v in
-                v.rx
-                 .willMoveToSuperview
-                 .filter { $0 }
-                 .take(1)
-                 .map { _ in }
-            }
+
+//        let sample = UILabel.sample()
+//        sample.receiver.0.frame = UIScreen.main.bounds
+//        window?.rootViewController?.view.addSubview(sample.receiver.0)
+//        self.sample = sample
+
+        let paged = Cycled(
+            lens: Table<[Person]>
+                .exampleLens()
+                .prefixed(with: .just([]))
+        )
         paged.receiver.frame = UIScreen.main.bounds
         window?.rootViewController?.view.addSubview(paged.receiver)
         self.paged = paged
- 
+
 //
 //                    .zipped {
 //                        /* instead of Async<[View]>, try concatenating each with a vertically stacked orientation to build up a table view. Allows nodes.reduce(.empty, zip). */
