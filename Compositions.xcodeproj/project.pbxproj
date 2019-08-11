@@ -10,6 +10,8 @@
 		27936D0C07A918AB204DB773 /* Pods_Compositions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 367DD31E85780B03BAF0CB0C /* Pods_Compositions.framework */; };
 		5B073A0522FD382000F5EE84 /* Lens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0422FD382000F5EE84 /* Lens.swift */; };
 		5B073A0B22FF6C1E00F5EE84 /* Cycled+Example.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0A22FF6C1E00F5EE84 /* Cycled+Example.swift */; };
+		5B073A0D22FF6EC000F5EE84 /* Cycled.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0C22FF6EC000F5EE84 /* Cycled.swift */; };
+		5B073A0F22FF6F0A00F5EE84 /* NSObject+Binding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0E22FF6F0A00F5EE84 /* NSObject+Binding.swift */; };
 		5B364CB4221E42C700023851 /* DatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B364CB3221E42C700023851 /* DatePicker.swift */; };
 		5BADE4A2221C93180024E1AD /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADE4A1221C93180024E1AD /* MapView.swift */; };
 		5BADE4A4221CD72F0024E1AD /* MKDirections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADE4A3221CD72F0024E1AD /* MKDirections.swift */; };
@@ -59,6 +61,8 @@
 		40DE90307FB7A9320B791553 /* Pods_CompositionsTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CompositionsTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B073A0422FD382000F5EE84 /* Lens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lens.swift; sourceTree = "<group>"; };
 		5B073A0A22FF6C1E00F5EE84 /* Cycled+Example.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Cycled+Example.swift"; sourceTree = "<group>"; };
+		5B073A0C22FF6EC000F5EE84 /* Cycled.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cycled.swift; sourceTree = "<group>"; };
+		5B073A0E22FF6F0A00F5EE84 /* NSObject+Binding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+Binding.swift"; sourceTree = "<group>"; };
 		5B364CB3221E42C700023851 /* DatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePicker.swift; sourceTree = "<group>"; };
 		5BADE4A1221C93180024E1AD /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		5BADE4A3221CD72F0024E1AD /* MKDirections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MKDirections.swift; sourceTree = "<group>"; };
@@ -185,6 +189,8 @@
 				5BE95E4E221BADE300241571 /* NavigationController.swift */,
 				5BE95E55221BADE300241571 /* Node.swift */,
 				5B073A0422FD382000F5EE84 /* Lens.swift */,
+				5B073A0E22FF6F0A00F5EE84 /* NSObject+Binding.swift */,
+				5B073A0C22FF6EC000F5EE84 /* Cycled.swift */,
 				D3267D5522F7B27A00895AA6 /* UIView+Reactive.swift */,
 				5BE95E53221BADE300241571 /* PageViewController.swift */,
 				5BE95E4F221BADE300241571 /* SplitViewController.swift */,
@@ -406,9 +412,11 @@
 				5BD544B4221F95CB00F1E909 /* TextInput.swift in Sources */,
 				5BE95E61221BADE300241571 /* StackView.swift in Sources */,
 				5BE95E5F221BADE300241571 /* TableView.swift in Sources */,
+				5B073A0F22FF6F0A00F5EE84 /* NSObject+Binding.swift in Sources */,
 				5BADE4A8221CD8DF0024E1AD /* Layer.swift in Sources */,
 				5BE95E57221BADE300241571 /* AttributedString.swift in Sources */,
 				D31DC608223D67580084B374 /* AsyncNode.swift in Sources */,
+				5B073A0D22FF6EC000F5EE84 /* Cycled.swift in Sources */,
 				5BE95E5E221BADE300241571 /* SplitViewController.swift in Sources */,
 				5BE95E5A221BADE300241571 /* AlertViewController.swift in Sources */,
 				D315AEBC22374DEE00EB58CB /* Enum.swift in Sources */,
