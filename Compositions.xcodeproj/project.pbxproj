@@ -12,6 +12,7 @@
 		5B073A0B22FF6C1E00F5EE84 /* Cycled+Example.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0A22FF6C1E00F5EE84 /* Cycled+Example.swift */; };
 		5B073A0D22FF6EC000F5EE84 /* Cycled.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0C22FF6EC000F5EE84 /* Cycled.swift */; };
 		5B073A0F22FF6F0A00F5EE84 /* NSObject+Binding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0E22FF6F0A00F5EE84 /* NSObject+Binding.swift */; };
+		5B073A172300BBE800F5EE84 /* Observable+Lens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A162300BBE800F5EE84 /* Observable+Lens.swift */; };
 		5B364CB4221E42C700023851 /* DatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B364CB3221E42C700023851 /* DatePicker.swift */; };
 		5BADE4A2221C93180024E1AD /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADE4A1221C93180024E1AD /* MapView.swift */; };
 		5BADE4A4221CD72F0024E1AD /* MKDirections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADE4A3221CD72F0024E1AD /* MKDirections.swift */; };
@@ -63,6 +64,7 @@
 		5B073A0A22FF6C1E00F5EE84 /* Cycled+Example.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Cycled+Example.swift"; sourceTree = "<group>"; };
 		5B073A0C22FF6EC000F5EE84 /* Cycled.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cycled.swift; sourceTree = "<group>"; };
 		5B073A0E22FF6F0A00F5EE84 /* NSObject+Binding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+Binding.swift"; sourceTree = "<group>"; };
+		5B073A162300BBE800F5EE84 /* Observable+Lens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Observable+Lens.swift"; sourceTree = "<group>"; };
 		5B364CB3221E42C700023851 /* DatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePicker.swift; sourceTree = "<group>"; };
 		5BADE4A1221C93180024E1AD /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		5BADE4A3221CD72F0024E1AD /* MKDirections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MKDirections.swift; sourceTree = "<group>"; };
@@ -190,6 +192,7 @@
 				5BE95E55221BADE300241571 /* Node.swift */,
 				5B073A0422FD382000F5EE84 /* Lens.swift */,
 				5B073A0E22FF6F0A00F5EE84 /* NSObject+Binding.swift */,
+				5B073A162300BBE800F5EE84 /* Observable+Lens.swift */,
 				5B073A0C22FF6EC000F5EE84 /* Cycled.swift */,
 				D3267D5522F7B27A00895AA6 /* UIView+Reactive.swift */,
 				5BE95E53221BADE300241571 /* PageViewController.swift */,
@@ -428,6 +431,7 @@
 				5BE95E5C221BADE300241571 /* Label.swift in Sources */,
 				5BE95E27221BA9B700241571 /* AppDelegate.swift in Sources */,
 				D315AEBE223899DD00EB58CB /* Collection.swift in Sources */,
+				5B073A172300BBE800F5EE84 /* Observable+Lens.swift in Sources */,
 				5B073A0B22FF6C1E00F5EE84 /* Cycled+Example.swift in Sources */,
 				5BADE4A4221CD72F0024E1AD /* MKDirections.swift in Sources */,
 				5BE95E64221BADE300241571 /* Node.swift in Sources */,

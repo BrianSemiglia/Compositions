@@ -160,147 +160,57 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     let cleanup = DisposeBag()
-    let events = PublishSubject<Events.Model>()
-    var sample: Cycled<(UIView, Void), String, (UIView, Void)>?
-    var paged: Cycled<Table<Person>, [Person], Table<Person>>?
+    var lens: Cycled<UIViewController, String>?
 
-    /*
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
-     Event -> Data + Constraint -> Concretion -> Event
+        self.lens = Cycled { stream in
+            let textView = stream.lens(
+                get: { state in
+                    UITextView().rendering(state) { view, state in
+                        view.frame = .init(
+                            origin: .init(x: 30, y: 60),
+                            size: .init(width: 300, height: 44)
+                        )
+                        view.text = state
+                        view.backgroundColor = state.count % 2 == 0 ? .yellow : .red
+                    }
+                },
+                set: { view, state in
+                    view.rx.text.map { $0 ?? "" }
+                }
+            )
 
-     (Store / Predicate).map(Decoration) + Size // UITableView
+            let background = stream.lens(
+                get: { state -> UIView in
+                    UIView().rendering(state) { view, state in
+                        view.backgroundColor = state.count % 2 == 0 ? .red : .yellow
+                    }
+                },
+                set: { _, _ in [] } // error(Foo.some) }
+            )
 
-     (Store / (Event(id) + Predicate)).map(Decoration) + Size // UITableView
+            let composedView = textView
+                .zip(background)
+                .map { state, views -> UIView in
+                    views.1.addSubview(views.0)
+                    return views.1
+                }
 
-     */
+            let composedViewController = composedView
+                .map { state, view -> UIViewController in
+                    let x = UIViewController()
+                    x.view = view
+                    return x
+                }
+                .prefixed(with: .just("hello"))
 
-    func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-    ) -> Bool {
-
-//        NSUInteger cacheSizeMemory = 500*1024*1024; // 500 MB
-//        NSUInteger cacheSizeDisk = 500*1024*1024; // 500 MB
-        
-//        URLCache.shared = URLCache(
-//            memoryCapacity: 500*1024*1024,
-//            diskCapacity: 500*1024*1024,
-//            diskPath: "nsurlcache"
-//        )
+            return composedViewController
+        }
 
         window = UIWindow(frame: UIScreen.main.bounds)
-        window?.rootViewController = UINavigationController(rootViewController: UIViewController())
         window?.makeKeyAndVisible()
-        
-        events
-            .map { (x: Events.Model) -> Person in
-                switch x {
-                case .didSelectPerson(let y): return y
-                }
-            }
-//            .map { person -> UIView in
-//                let x = UIImage(named: "placeholder")!
-//                    + CGSize(width: 300, height: 200)
-//                    + .vertical(80)
-//                    + (
-//                        person.firstName
-//                            + .foreground(UIColor.black)
-//                            + CGSize(width: 300, height: 100)
-//                )
-//                return x
-//            }
-            .subscribe(onNext: { [weak self] detail in
-                print(detail.firstName)
-//                if let navigation = self?.window?.rootViewController.flatMap({ $0 as? UINavigationController }) {
-//                    navigation.pushViewController(
-//                        [detail] + UIScreen.main.bounds.size,
-//                        animated: true
-//                    )
-//                }
-            })
-            .disposed(by: cleanup)
-
-//        let x = (
-//            URL(string: "https://s3.amazonaws.com/raizlabs-doorman/mugshots/Jess_Caraciolo.JPG")! / UIImage.self
-//        ).share(replay: 1, scope: .forever)
-//        let y = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - 44)
-//        let z = Observable.just("hello")
-//        let n = .vertical(10) + (x + y + z)
-//        let b = Observable.just([n]) / ScreenDivision.some
-
-//        let pages = PageViewController<Events.Model>.example()
-////        b.initial.frame = UIScreen.main.bounds
-//        window?.rootViewController = pages.initial
-//        pages.values.subscribe().disposed(by: cleanup)
-
-//        let table = Table<Events.Model>.example()
-//        table.initial.frame = UIScreen.main.bounds
-//        window?.rootViewController?.view.addSubview(table.initial)
-//        table // table won't load without a subscriber. change table interface to accept Observables and cause subscription? will that affect event subscription?
-//            .values
-//            .flatMap {
-//                $0.1.flatMap {
-//                    $0.other.map(Observable.just) ?? .never()
-//                }
-//            }
-//            .bind(to: events)
-//            .disposed(by: cleanup)
-
-//        let paged = PageViewController<Events.Model>.example()
-//        paged.initial.frame = UIScreen.main.bounds
-//        window?.rootViewController?.view.addSubview(paged.initial)
-//        paged
-//            .subsequent
-//            .flatMap { $0.1.debug() }
-//            .subscribe(onNext: {
-//                self.events.on(.next($0))
-//            })
-////            .bind(to: events)
-//            .disposed(by: cleanup)
-
-//        let example = UILabel.example()
-//        example.receiver.0.frame = UIScreen.main.bounds
-//        window?.rootViewController?.view.addSubview(example.receiver.0)
-//        self.example = example
-
-        let paged = Cycled(
-            lens: Table<[Person]>
-                .exampleLens()
-                .prefixed(with: .just([]))
-        )
-        paged.receiver.frame = UIScreen.main.bounds
-        window?.rootViewController?.view.addSubview(paged.receiver)
-        self.paged = paged
-
-//
-//                    .zipped {
-//                        /* instead of Async<[View]>, try concatenating each with a vertically stacked orientation to build up a table view. Allows nodes.reduce(.empty, zip). */
-//                        $0 + [$1]
-//                    }
-//                    .cacheMap { (sum: UIView?, next: [UIImageView]) in
-//                        // Table decides when to pull from cells stream
-//                        // Node holds cached concretion
-//                        // Table provides number of cells necessary at time of subscribe?
-//                        // Table accepts cells as AsyncNodes?
-//                        if let table = sum as? Table<Events.Model> {
-//                            table.cells = next
-//                            return table
-//                        } else {
-//                            return next + UIScreen.main.bounds.size
-//                        }
-//                    }
-//                    .map {
-//                        // need a way to reuse table here
-//                        // if model returned instead of concretion, node could
-//                        // retain concretion for further updates
-//
-//                        // Type could also provide a static cache function
-//
-//                        // Nodes produce Observable<View.Model>, it's realized function uses types cached method
-//
-//                        $0 + UIScreen.main.bounds.size
-//                    }
-//            }
+        window?.rootViewController = self.lens?.receiver
 
         return true
     }
