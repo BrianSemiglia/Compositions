@@ -10,22 +10,31 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-struct Cycled<Receiver, Value> {
+struct Cycled<Receiver, Value: Equatable, Constant> {
     let receiver: Receiver
     private let producer = PublishSubject<Value>()
     private let cleanup = DisposeBag()
-    init(lens: Lens<Observable<Value>, Receiver>) {
-        let shared = producer.asObservable().share()
-        receiver = lens.get(shared)
+    init(lens: Lens<Observable<Value>, Receiver, Constant>) {
+        let shared = producer
+//            .materialize()
+//            .flatMap { x -> Observable<Value> in
+//                switch x {
+//                case .completed: return .never()
+//                case .error: return .never()
+//                case .next(let x): return .just(x)
+//                }
+//            }
+            .distinctUntilChanged()
+            .share()
+            .debug()
+        receiver = lens.get(lens.constant, shared)
         Observable
             .merge(
                 lens
                     .set(receiver, shared)
                     .reduce([]) { $0 + [$1] }
             )
-            .debug()
             .observeOn(MainScheduler.asyncInstance)
-            .concat(Observable.never())
             .bind(to: producer)
             .disposed(by: cleanup)
     }

@@ -161,8 +161,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     let cleanup = DisposeBag()
     let events = PublishSubject<Events.Model>()
-    var sample: Cycled<(UIView, Void), String>?
-    var paged: Cycled<Table<Person>, [Person]>?
+    var sample: Cycled<(UIView, Void), String, (UIView, Void)>?
+    var paged: Cycled<Table<Person>, [Person], Table<Person>>?
 
     /*
 
@@ -258,10 +258,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 ////            .bind(to: events)
 //            .disposed(by: cleanup)
 
-//        let sample = UILabel.sample()
-//        sample.receiver.0.frame = UIScreen.main.bounds
-//        window?.rootViewController?.view.addSubview(sample.receiver.0)
-//        self.sample = sample
+//        let example = UILabel.example()
+//        example.receiver.0.frame = UIScreen.main.bounds
+//        window?.rootViewController?.view.addSubview(example.receiver.0)
+//        self.example = example
 
         let paged = Cycled(
             lens: Table<[Person]>

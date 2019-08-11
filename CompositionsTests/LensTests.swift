@@ -19,46 +19,49 @@ import RxCocoa
 class LensTests: XCTestCase {
 
     func testLenzMapLeft() throws {
-        let x = Lens<Observable<Int>, UILabel>(
-            get: { a in
-                UILabel().rendering(a) { v, s in
+        let x = UILabel().lens(
+            get: { l, a in
+                l.rendering(a) { v, s in
                     v.text = String(s)
                     v.backgroundColor = .red
                     v.sizeToFit()
                 }
-            }
+            },
+            set: { v, s in Observable<Int>.never() }
         )
         assertSnapshot(
-            matching: x.get(.just(1)),
+            matching: x.get(x.constant, .just(1)),
             as: .image
         )
     }
 
     func testLenzMapLeftMultipleStates() throws {
-        let x = Lens<Observable<Int>, UILabel>(
-            get: { a in
-                UILabel().rendering(a) { v, s in
+        let x = UILabel().lens(
+            get: { l, a in
+                l.rendering(a) { v, s in
                     v.text = String(s)
                     v.backgroundColor = .red
                     v.sizeToFit()
                 }
-            }
+            },
+            set: { v, s in Observable<Int>.never() }
         )
         assertSnapshot(
-            matching: x.get(.from([1, 2])),
+            matching: x.get(x.constant, .from([1, 2])),
             as: .image
         )
     }
 
     func testMapLeftAppending() throws {
-        let x = Lens<Observable<Int>, UILabel>(
-            get: { a -> UILabel in
-                UILabel().rendering(a) { v, s -> Void in
+        let x = UILabel().lens(
+            get: { l, a -> UILabel in
+                l.rendering(a) { v, s -> Void in
                     v.text = String(s)
                     v.backgroundColor = .red
                     v.sizeToFit()
                 }
-            }
+            },
+            set: { v, s in Observable<Int>.never() }
         )
         .map { s, v1 -> UIView in
             let v2 = UIView()
@@ -76,20 +79,21 @@ class LensTests: XCTestCase {
         }
 
         assertSnapshot(
-            matching: x.get(.just(1)),
+            matching: x.get(x.constant, .just(1)),
             as: .image
         )
     }
 
     func testMapLeftMultipleStatesAppending() throws {
-        let x = Lens<Observable<Int>, UILabel>(
-            get: { s -> UILabel in
-                UILabel().rendering(s) { v, s -> Void in
+        let x = UILabel().lens(
+            get: { l, s -> UILabel in
+                l.rendering(s) { v, s -> Void in
                     v.text = String(s)
                     v.backgroundColor = .red
                     v.sizeToFit()
                 }
-            }
+            },
+            set: { v, s in Observable<Int>.never() }
         )
         .map { s, v1 -> UIView in
             let v2 = UIView()
@@ -108,15 +112,15 @@ class LensTests: XCTestCase {
         .prefixed(with: .just(2))
 
         assertSnapshot(
-            matching: x.get(.just(3)),
+            matching: x.get(x.constant, .just(3)),
             as: .image
         )
     }
 
     func testMapRightMultipleMap() throws {
-        let x = Lens<Observable<Int>, UIView>(
-            get: { s in UIView() },
-            set: { v, s in [.from([3, 4])] }
+        let x = UIView().lens(
+            get: { v, s in v },
+            set: { v, s in Observable.from([3, 4]) }
         )
         .prefixed(with: .just(1))
 
@@ -135,22 +139,22 @@ class LensTests: XCTestCase {
     }
 
     func testMapRightMultipleStates() throws {
-        let x = Lens<Observable<Int>, UITextField>(
-            get: { s in UITextField().rendering(s) { v, s in v.text = String(s) } },
-            set: { v, s in [] }
+        let x = UITextField().lens(
+            get: { v, s in v.rendering(s) { v, s in v.text = String(s) } },
+            set: { v, s in Observable<Int>.never() }
         )
 
         XCTAssertEqual(
-            x.get(.from([2, 3])).text,
+            x.get(x.constant, .from([2, 3])).text,
             "3"
         )
     }
 
     func testRecursiveUnique() throws {
         let x = Cycled(
-            lens: Lens(
-                get: { s in UILabel().rendering(s) { v, s in v.text = String(s) } },
-                set: { s, v in [Observable.just(1)] }
+            lens: UILabel().lens(
+                get: { v, s in v.rendering(s) { v, s in v.text = String(s) } },
+                set: { v, s in Observable.just(1) }
             )
             .prefixed(with: .just(1))
         )
@@ -179,8 +183,8 @@ class LensTests: XCTestCase {
 
     func testRecursive() throws {
         let x = Cycled(
-            lens: Lens<Observable<String>, UILabel>(
-                get: { s in UILabel().rendering(s) { l, v in l.text = v } },
+            lens: UILabel().lens(
+                get: { l, s in l.rendering(s) { l, v in l.text = v } },
                 set: { l, s in [Observable.just("4")] }
             )
             .prefixed(with: .just("1"))
@@ -201,9 +205,9 @@ class LensTests: XCTestCase {
 
     func testCycledRecursive() throws {
         let x = Cycled(
-            lens: Lens<Observable<String>, UILabel>(
-                get: { s in UILabel().rendering(s) { l, v in l.text = v } },
-                set: { l, s in [Observable.from(["4", "5"])] }
+            lens: UILabel().lens(
+                get: { l, s in l.rendering(s) { l, v in l.text = v } },
+                set: { l, s in Observable.from(["4", "5"]) }
             )
         )
 
@@ -222,9 +226,10 @@ class LensTests: XCTestCase {
 
     func testRecursiveMultipleMapRight() throws {
         let x = Cycled(
-            lens: Lens<Observable<String>, UILabel>(
-                get: { s in UILabel().rendering(s) { l, v in l.text = v } },
-                set: { l, s in [
+            lens: Lens<Observable<String>, UILabel, UILabel>(
+                constant: UILabel(),
+                get: { v, s in v.rendering(s) { l, v in l.text = v } },
+                set: { v, s -> [Observable<String>] in [
                     s.flatMap {
                         $0.count > 2
                             ? Observable.empty()
@@ -235,7 +240,7 @@ class LensTests: XCTestCase {
                             ? Observable.empty()
                             : Observable.just($0 + "3")
                     }
-                ] }
+                ]}
             )
             .prefixed(with: .just("1"))
         )
@@ -254,13 +259,13 @@ class LensTests: XCTestCase {
 
     func testSubscribingOn() {
         let x = Cycled(
-            lens: Lens<Observable<String>, UILabel>(
-                get: { s in UILabel().rendering(s) { l, v in l.text = v } },
-                set: { l, s in [
+            lens: UILabel().lens(
+                get: { l, s in l.rendering(s) { l, v in l.text = v } },
+                set: { l, s in
                     l.rx
                         .willMoveToSuperview
                         .flatMap { $0 ? Observable.just("3") : .never() }
-                ] }
+                }
             )
         )
         x.receiver.willMove(toSuperview: UIView())
@@ -291,9 +296,9 @@ class LensTests: XCTestCase {
 
     func testStartingWith() {
         let x = Cycled(
-            lens: Lens<Observable<String>, UILabel>(
-                get: { s in UILabel().rendering(s) { l, v in l.text = v } },
-                set: { l, s in [] }
+            lens: UILabel().lens(
+                get: { l, s in l.rendering(s) { l, v in l.text = v } },
+                set: { v, s in Observable<String>.never() }
             )
             .prefixed(with: .just("99"))
         )
@@ -311,13 +316,21 @@ class LensTests: XCTestCase {
     }
 
     func testLenzZip() {
-        let a = Lens<String, Int>(get: { s in Int(s)! }, set: { i, s in ["\(i)"] })
-        XCTAssertEqual(a.get("1"), 1)
+        let a = Lens<String, Int, Int>(
+            constant: 0,
+            get: { i, s in Int(s)! },
+            set: { i, s in "\(i)" }
+        )
+        XCTAssertEqual(a.get(a.constant, "1"), 1)
         XCTAssertEqual(a.set(4, ""), ["4"])
-        let b = Lens<String, Int>(get: { s in Int(s)! * 2 }, set: { i, s in ["\(i * 2)"] })
+        let b = Lens<String, Int, Int>(
+            constant: 0,
+            get: { i, s in Int(s)! * 2 },
+            set: { i, s in "\(i * 2)" }
+        )
         let c = Lens.zip(a, b)
-        XCTAssertEqual(c.get("3").0, 3)
-        XCTAssertEqual(c.get("3").1, 6)
+        XCTAssertEqual(c.get(c.constant, "3").0, 3)
+        XCTAssertEqual(c.get(c.constant, "3").1, 6)
         XCTAssertEqual(c.set((2, 5), ""), ["2", "10"])
     }
 }

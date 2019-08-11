@@ -16,10 +16,10 @@ enum ListDivision {
 
 extension Table {
 
-    static func exampleLens() -> Lens<Observable<[Person]>, Table<Person>> { return
-        Lens<Observable<[Person]>, Table<Person>>.init(
-            get: { s in
-                Table<Person>(cells: []).rendering(s) { view, state in
+    static func exampleLens() -> Lens<Observable<[Person]>, Table<Person>, Table<Person>> { return
+        Table<Person>(cells: []).lens(
+            get: { v, s in
+                v.rendering(s) { view, state in
                     let cell = UIView()
                     cell.backgroundColor = .blue
                     cell.frame = .init(origin: .zero, size: .init(width: 50, height: 400))
@@ -34,7 +34,7 @@ extension Table {
                     }
                 }
             },
-            set: { v, s in [
+            set: { v, s in
                 Observable<[Person]>.just(
                     [Person(
                         firstName: "Foo",
@@ -44,7 +44,7 @@ extension Table {
                     )]
                     .flatMap { Array(repeating: $0, count: 10) }
                 )
-            ] }
+            }
         )
     }
 

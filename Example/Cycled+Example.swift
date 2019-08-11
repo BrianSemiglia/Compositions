@@ -11,31 +11,31 @@ import RxSwift
 import RxCocoa
 
 extension UILabel {
-    static func sample() -> Cycled<(UIView, Void), String> {
-        let viewer = Lens(
-            get: { s -> UILabel in
-                let x = UILabel()
+    static func example() -> Cycled<(UIView, Void), String, (UILabel, Observable<String>)> {
+        let viewer = UILabel().lens(
+            get: { x, s -> UILabel in
                 x.backgroundColor = .red
                 x.frame = .init(origin: CGPoint(x: 40, y: 40), size: CGSize(width: 0, height: 0))
                 return x.rendering(s) { l, v in l.text = v; l.sizeToFit() }
             },
-            set: { l, s in [
+            set: { l, s in
                 Observable<Int>
                     .interval(.seconds(1), scheduler: MainScheduler())
                     .map(String.init)
                     .scan("") { x, y in x + y }
-                ] }
-            )
-            .map { s, l -> UIView in
-                let x = UIView()
-                x.backgroundColor = .green
-                x.addSubview(l)
-                return x
             }
-            .prefixed(with: .just("Hello World"))
+        )
+        .map { s, l -> UIView in
+            let x = UIView()
+            x.backgroundColor = .green
+            x.addSubview(l)
+            return x
+        }
+        .prefixed(with: .just("Hello World"))
 
-        let animator = Lens<Observable<String>, Void>(
-            get: { a in },
+        let animator = Lens<Observable<String>, Void, Observable<String>>(
+            constant: Observable.never(),
+            get: { o, a in },
             set: { b, a in [
                 a.sample(
                     Observable<Int>.interval(
