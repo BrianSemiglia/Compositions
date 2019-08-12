@@ -38,7 +38,7 @@ extension UIView {
             }
             .prefixed(with: .just("Hello World"))
 
-            let animator = Observable<String>.never().lens(
+            let animator = stream.lens(
                 get: { a in },
                 set: { b, a in
                     a.sample(
@@ -47,7 +47,7 @@ extension UIView {
                             scheduler: MainScheduler.instance
                         )
                     )
-                    .flatMap { $0.count > 0 ? Observable.just($0) : Observable.never() }
+                    .flatMap { $0.count > 0 ? Observable.just($0) : .never() }
                     .map { String($0.dropLast()) }
                 }
             )
