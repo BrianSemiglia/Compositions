@@ -310,14 +310,14 @@ class LensTests: XCTestCase {
     }
 
     func testLensZip() {
-        let single = Lens<String, Int>(
+        let single = MutatingLens<String, Int>(
             value: "4",
             get: { string in Int(string)! },
             set: { int, string in "\(int)" }
         )
         XCTAssertEqual(single.get(), 4)
         XCTAssertEqual(single.set(), ["4"])
-        let double = Lens<String, Int>(
+        let double = MutatingLens<String, Int>(
             value: "5",
             get: { string in Int(string)! * 2 },
             set: { int, string in "\(int * 2)" }

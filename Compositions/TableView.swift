@@ -18,7 +18,7 @@ extension Table {
 
     static func exampleLens(
         source: Observable<[Person]>
-    ) -> Lens<Observable<[Person]>, Table<Person>> { return
+    ) -> MutatingLens<Observable<[Person]>, Table<Person>> { return
         source.lens(
             get: { state in
                 Table<Person>(cells: []).rendering(state) { view, state in

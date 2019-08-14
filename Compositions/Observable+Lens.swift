@@ -1,5 +1,5 @@
 //
-//  Observable+Lens.swift
+//  Observable+MutatingLens.swift
 //  Compositions
 //
 //  Created by Brian Semiglia on 8/11/19.
@@ -16,8 +16,8 @@ extension Observable {
     func lens<B>(
         get: @escaping (Observable<Element>) -> B,
         set: @escaping (B, Observable<Element>) -> [Observable<Element>]
-    ) -> Lens<Observable<Element>, B> { return
-        Lens<Observable<Element>, B>(
+    ) -> MutatingLens<Observable<Element>, B> { return
+        MutatingLens<Observable<Element>, B>(
             value: self,
             get: get,
             set: set
@@ -27,8 +27,8 @@ extension Observable {
     func lens<B>(
         get: @escaping (Observable<Element>) -> B,
         set: @escaping (B, Observable<Element>) -> Observable<Element>
-    ) -> Lens<Observable<Element>, B> { return
-        Lens<Observable<Element>, B>(
+    ) -> MutatingLens<Observable<Element>, B> { return
+        MutatingLens<Observable<Element>, B>(
             value: self,
             get: get,
             set: set
@@ -37,8 +37,8 @@ extension Observable {
 
     func lens<B>(
         get: @escaping (Observable<Element>) -> B
-    ) -> Lens<Observable<Element>, B> { return
-        Lens<Observable<Element>, B>(
+    ) -> MutatingLens<Observable<Element>, B> { return
+        MutatingLens<Observable<Element>, B>(
             value: self,
             get: get
         )

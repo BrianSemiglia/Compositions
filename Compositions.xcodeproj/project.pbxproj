@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		27936D0C07A918AB204DB773 /* Pods_Compositions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 367DD31E85780B03BAF0CB0C /* Pods_Compositions.framework */; };
-		5B073A0522FD382000F5EE84 /* Lens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0422FD382000F5EE84 /* Lens.swift */; };
+		5B073A0522FD382000F5EE84 /* MutatingLens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0422FD382000F5EE84 /* MutatingLens.swift */; };
 		5B073A0B22FF6C1E00F5EE84 /* Cycled+Example.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0A22FF6C1E00F5EE84 /* Cycled+Example.swift */; };
 		5B073A0D22FF6EC000F5EE84 /* Cycled.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0C22FF6EC000F5EE84 /* Cycled.swift */; };
 		5B073A0F22FF6F0A00F5EE84 /* NSObject+Binding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B073A0E22FF6F0A00F5EE84 /* NSObject+Binding.swift */; };
@@ -60,7 +60,7 @@
 		15D8B89F1254D669A8CB67A0 /* Pods-CompositionsTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CompositionsTests.debug.xcconfig"; path = "Target Support Files/Pods-CompositionsTests/Pods-CompositionsTests.debug.xcconfig"; sourceTree = "<group>"; };
 		367DD31E85780B03BAF0CB0C /* Pods_Compositions.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Compositions.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		40DE90307FB7A9320B791553 /* Pods_CompositionsTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CompositionsTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		5B073A0422FD382000F5EE84 /* Lens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lens.swift; sourceTree = "<group>"; };
+		5B073A0422FD382000F5EE84 /* MutatingLens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutatingLens.swift; sourceTree = "<group>"; };
 		5B073A0A22FF6C1E00F5EE84 /* Cycled+Example.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Cycled+Example.swift"; sourceTree = "<group>"; };
 		5B073A0C22FF6EC000F5EE84 /* Cycled.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cycled.swift; sourceTree = "<group>"; };
 		5B073A0E22FF6F0A00F5EE84 /* NSObject+Binding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+Binding.swift"; sourceTree = "<group>"; };
@@ -190,7 +190,7 @@
 				5BADE4A3221CD72F0024E1AD /* MKDirections.swift */,
 				5BE95E4E221BADE300241571 /* NavigationController.swift */,
 				5BE95E55221BADE300241571 /* Node.swift */,
-				5B073A0422FD382000F5EE84 /* Lens.swift */,
+				5B073A0422FD382000F5EE84 /* MutatingLens.swift */,
 				5B073A0E22FF6F0A00F5EE84 /* NSObject+Binding.swift */,
 				5B073A162300BBE800F5EE84 /* Observable+Lens.swift */,
 				5B073A0C22FF6EC000F5EE84 /* Cycled.swift */,
@@ -435,7 +435,7 @@
 				5B073A0B22FF6C1E00F5EE84 /* Cycled+Example.swift in Sources */,
 				5BADE4A4221CD72F0024E1AD /* MKDirections.swift in Sources */,
 				5BE95E64221BADE300241571 /* Node.swift in Sources */,
-				5B073A0522FD382000F5EE84 /* Lens.swift in Sources */,
+				5B073A0522FD382000F5EE84 /* MutatingLens.swift in Sources */,
 				5BE95E59221BADE300241571 /* TabBarController.swift in Sources */,
 				5BE95E5D221BADE300241571 /* NavigationController.swift in Sources */,
 				5BE95E58221BADE300241571 /* Decodable.swift in Sources */,

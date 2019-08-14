@@ -79,7 +79,7 @@ extension UIView {
                 }
             )
             
-            let view = Lens<Observable<State>, (UITextView, UITextView)>(
+            let view = MutatingLens<Observable<State>, (UITextView, UITextView)>(
                 value: source,
                 get: { state in (
                     UITextView().rendering(state) { view, state in

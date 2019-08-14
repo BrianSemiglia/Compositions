@@ -1,5 +1,5 @@
 //
-//  Lens.swift
+//  MutatingLens.swift
 //  Compositions
 //
 //  Created by Brian Semiglia on 8/2/19.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Lens<A, B> {
+struct MutatingLens<A, B> {
 
     private let value: A
     let get: B
@@ -28,41 +28,41 @@ struct Lens<A, B> {
         self.set = [set(b, value)]
     }
 
-    func zip<C>(_ other: Lens<A, C>) -> Lens<A, (B, C)> { return
-        Lens<A, (B, C)>(
+    func zip<C>(_ other: MutatingLens<A, C>) -> MutatingLens<A, (B, C)> { return
+        MutatingLens<A, (B, C)>(
             value: value,
             get: { a in (self.get, other.get) },
             set: { _, a in self.set + other.set }
         )
     }
 
-    func map<C>(_ f: @escaping (A, B) -> C) -> Lens<A, C> { return
-        Lens<A, C>(
+    func map<C>(_ f: @escaping (A, B) -> C) -> MutatingLens<A, C> { return
+        MutatingLens<A, C>(
             value: value,
             get: { a in f(a, self.get) },
             set: { _, _ in self.set }
         )
     }
     
-    func mapLeft(_ other: Lens<A, B>, _ f: @escaping (B, A) -> A) -> Lens<A, B> { return
-        Lens<A, B>(
+    func mapLeft(_ other: MutatingLens<A, B>, _ f: @escaping (B, A) -> A) -> MutatingLens<A, B> { return
+        MutatingLens<A, B>(
             value: value,
             get: { _ in self.get },
             set: f
         )
     }
     
-    func flatMap<C>(_ f: @escaping (A, B) -> Lens<A, C>) -> Lens<A, C> {
+    func flatMap<C>(_ f: @escaping (A, B) -> MutatingLens<A, C>) -> MutatingLens<A, C> {
         let other = f(value, get)
-        return Lens<A, C>(
+        return MutatingLens<A, C>(
             value: value,
             get: { a in other.get },
             set: { c, a in self.set + other.set }
         )
     }
 
-    func prefixed(with prefix: A) -> Lens<A, B> { return
-        Lens(
+    func prefixed(with prefix: A) -> MutatingLens<A, B> { return
+        MutatingLens(
             value: value,
             get: { _ in self.get },
             set: { _, _ in [prefix] + self.set }
