@@ -165,7 +165,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
         self.lens = Cycled { stream in
-            let textView = stream.lens(
+            let composedView = stream.lens(
                 get: { state in
                     UITextView().rendering(state) { view, state in
                         view.frame = .init(
@@ -180,22 +180,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     view.rx.text.map { $0 ?? "" }
                 }
             )
-
-            let background = stream.lens(
-                get: { state -> UIView in
-                    UIView().rendering(state) { view, state in
-                        view.backgroundColor = state.count % 2 == 0 ? .red : .yellow
-                    }
-                },
-                set: { _, _ in [] } // error(Foo.some) }
-            )
-
-            let composedView = textView
-                .zip(background)
-                .map { state, views -> UIView in
-                    views.1.addSubview(views.0)
-                    return views.1
-                }
+            .flatMap { state, view in
+                state.lens(
+                    get: { state -> UIView in
+                        let background = UIView().rendering(state) { view, state in
+                            view.backgroundColor = state.count % 2 == 0 ? .red : .yellow
+                        }
+                        background.addSubview(view)
+                        return background
+                    },
+                    set: { _, _ in [] } // error(Foo.some) }
+                )
+            }
 
             let composedViewController = composedView
                 .map { state, view -> UIViewController in
