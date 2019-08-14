@@ -14,20 +14,41 @@ struct MutatingLens<A, B> {
     let get: B
     let set: [A]
 
-    init(value: A, get: @escaping (A) -> B, set: @escaping (B, A) -> [A] = { _, _ in [] }) {
-        let b = get(value)
-        self.value = value
-        self.get = b
-        self.set = set(b, value)
+    init(
+        value: A,
+        get: @escaping (A) -> B,
+        set: @escaping (B, A) -> [A] = { _, _ in [] }
+    ) {
+        self.init(
+            _value: value,
+            _get: get,
+            _set: set
+        )
     }
 
-    init(value: A, get: @escaping (A) -> B, set: @escaping (B, A) -> A) {
-        let b = get(value)
-        self.value = value
-        self.get = b
-        self.set = [set(b, value)]
+    init(
+        value: A,
+        get: @escaping (A) -> B,
+        set: @escaping (B, A) -> A
+    ) {
+        self.init(
+            _value: value,
+            _get: get,
+            _set: { b, a in [set(b, value)] }
+        )
     }
-
+    
+    private init(
+        _value: A,
+        _get: @escaping (A) -> B,
+        _set: @escaping (B, A) -> [A] = { _, _ in [] }
+    ) {
+        let b = _get(_value)
+        self.value = _value
+        self.get = b
+        self.set = _set(b, value)
+    }
+    
     func zip<C>(_ other: MutatingLens<A, C>) -> MutatingLens<A, (B, C)> { return
         MutatingLens<A, (B, C)>(
             value: value,
