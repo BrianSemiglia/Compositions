@@ -11,9 +11,11 @@ import RxSwift
 import RxCocoa
 
 struct Cycled<Receiver, Value: Equatable> {
+    
     let receiver: Receiver
     private let producer = PublishSubject<Value>()
     private let cleanup = DisposeBag()
+    
     init(lens: (Observable<Value>) -> Lens<Observable<Value>, Receiver>) {
         let lens = lens(
             producer
