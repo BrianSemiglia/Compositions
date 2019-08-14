@@ -21,13 +21,9 @@ struct Cycled<Receiver, Value: Equatable> {
                 .share()
                 .debug()
         )
-        receiver = lens.get()
+        receiver = lens.get
         Observable
-            .merge(
-                lens
-                    .set()
-                    .reduce([]) { $0 + [$1] }
-            )
+            .merge(lens.set)
             .observeOn(MainScheduler.asyncInstance)
             .bind(to: producer)
             .disposed(by: cleanup)

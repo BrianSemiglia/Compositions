@@ -11,44 +11,61 @@ import Foundation
 struct Lens<A, B> {
 
     private let value: A
-    let get: () -> B
-    let set: () -> [A]
+    let get: B
+    let set: [A]
 
     init(value: A, get: @escaping (A) -> B, set: @escaping (B, A) -> [A] = { _, _ in [] }) {
         let b = get(value)
         self.value = value
-        self.get = { b }
-        self.set = { set(b, value) }
+        self.get = b
+        self.set = set(b, value)
     }
 
     init(value: A, get: @escaping (A) -> B, set: @escaping (B, A) -> A) {
         let b = get(value)
         self.value = value
-        self.get = { b }
-        self.set = { [set(b, value)] }
+        self.get = b
+        self.set = [set(b, value)]
     }
 
-    func zip<C>(_ other: Lens<A, C>) -> Lens<A, (B, C)> {
-        return Lens<A, (B, C)>(
+    func zip<C>(_ other: Lens<A, C>) -> Lens<A, (B, C)> { return
+        Lens<A, (B, C)>(
             value: value,
-            get: { a in (self.get(), other.get()) },
-            set: { _, a in self.set() + other.set() }
+            get: { a in (self.get, other.get) },
+            set: { _, a in self.set + other.set }
         )
     }
 
-    func map<C>(_ f: @escaping (A, B) -> C) -> Lens<A, C> {
+    func map<C>(_ f: @escaping (A, B) -> C) -> Lens<A, C> { return
+        Lens<A, C>(
+            value: value,
+            get: { a in f(a, self.get) },
+            set: { _, _ in self.set }
+        )
+    }
+    
+    func mapLeft(_ other: Lens<A, B>, _ f: @escaping (B, A) -> A) -> Lens<A, B> { return
+        Lens<A, B>(
+            value: value,
+            get: { _ in self.get },
+            set: f
+        )
+    }
+    
+    func flatMap<C>(_ f: @escaping (A, B) -> Lens<A, C>) -> Lens<A, C> {
+        let other = f(value, get)
         return Lens<A, C>(
             value: value,
-            get: { a in f(a, self.get()) },
-            set: { _, _ in self.set() }
+            get: { a in other.get },
+            set: { c, a in self.set + other.set }
         )
     }
 
     func prefixed(with prefix: A) -> Lens<A, B> { return
         Lens(
             value: value,
-            get: { _ in self.get() },
-            set: { _, _ in [prefix] + self.set() }
+            get: { _ in self.get },
+            set: { _, _ in [prefix] + self.set }
         )
     }
 }
